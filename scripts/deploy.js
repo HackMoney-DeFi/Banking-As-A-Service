@@ -1,4 +1,7 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
+
+const { ethers } = require("hardhat");
+
 // yours, or create new ones.
 async function main() {
   // This is just a convenience check
@@ -12,6 +15,7 @@ async function main() {
 
   // ethers is avaialble in the global scope
   const [deployer] = await ethers.getSigners();
+
   console.log(
     "Deploying the contracts with the account:",
     await deployer.getAddress()
@@ -24,6 +28,13 @@ async function main() {
   await token.deployed();
 
   console.log("Token address:", token.address);
+
+  const LibToken = await ethers.getContractFactory("LibertyToken")
+  const libToken = await LibToken.deploy("Libery", "LIB", 0, 1);
+  await libToken.deployed();
+
+  console.log("LiberyToken address", libToken.address)
+  // 0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6
 
   // We also save the contract's artifacts and address in the frontend directory
   saveFrontendFiles(token);

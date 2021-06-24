@@ -4,6 +4,7 @@
 // Hardhat tests are normally written with Mocha and Chai.
 
 // We import Chai to use its asserting functions here.
+const { BigNumber } = require("@ethersproject/bignumber");
 const { expect } = require("chai");
 
 // `describe` is a Mocha function that allows you to organize your tests. It's
@@ -129,6 +130,63 @@ describe("Token contract", function () {
         addr2.address
       );
       expect(addr2Balance).to.equal(50);
+    });
+  });
+});
+
+describe("Liberty contract", function () {
+  // Mocha has four functions that let you hook into the the test runner's
+  // lifecyle. These are: `before`, `beforeEach`, `after`, `afterEach`.
+
+  // They're very useful to setup the environment for tests, and to clean it
+  // up after they run.
+
+  // A common pattern is to declare some variables, and assign them in the
+  // `before` and `beforeEach` callbacks.
+
+  let Token;
+  let hardhatToken;
+  let owner;
+  let addr1;
+  let addr2;
+  let addrs;
+
+  // `beforeEach` will run before each test, re-deploying the contract every
+  // time. It receives a callback, which can be async.
+  beforeEach(async function () {
+    // Get the ContractFactory and Signers here.
+    Token = await ethers.getContractFactory("LibertyToken");
+    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
+
+    // To deploy our contract, we just have to call Token.deploy() and await
+    // for it to be deployed(), which happens onces its transaction has been
+    // mined.
+    hardhatToken = await Token.deploy("Lib", "Lib", 10, 1);
+    await hardhatToken.deployed();
+
+    // We can interact with the contract by calling `hardhatToken.method()`
+    await hardhatToken.deployed();
+  });
+
+
+  describe("Transactions", function () {
+    it("money has been taken from owner", async function () {
+      // TODO: fix this testing
+      bal1 = await hardhatToken.balanceOf(addr1.address);
+      console.log("balance of alice is", bal1.toString());
+
+      // test miniting 
+      let overrideOptions = {
+        gasLimit: 250000,
+        gasPrice: 9000000000,
+        value: ethers.utils.parseEther('1')
+      };
+      await hardhatToken.mint(overrideOptions);
+
+      bal2 = await hardhatToken.balanceOf(owner.address);
+      remaining_balance = await bal2.sub(bal1).toString()
+      console.log("balance of alice is", remaining_balance);
+
     });
   });
 });
