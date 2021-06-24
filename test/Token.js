@@ -6,6 +6,7 @@
 // We import Chai to use its asserting functions here.
 const { BigNumber } = require("@ethersproject/bignumber");
 const { expect } = require("chai");
+const { ethers } = require("hardhat")
 
 // `describe` is a Mocha function that allows you to organize your tests. It's
 // not actually needed, but having your tests organized makes debugging them
