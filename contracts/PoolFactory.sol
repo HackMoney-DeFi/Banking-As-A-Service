@@ -21,11 +21,6 @@ contract PoolFactory {
 
     event PoolCreated(address owner, uint256 amount);
 
-    modifier onlyAmountGreaterThanZero(uint256 amount) {
-        require(amount > 0, "Amount must be greater than 0.");
-        _;
-    }
-
     modifier requireSufficientBalance(address owner, uint256 amount) {
         require(owner.balance >= amount, "Insufficient balance for transaction.");
         _;
