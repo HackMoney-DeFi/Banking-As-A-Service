@@ -20,9 +20,8 @@ contract Pool is IPool {
      */
     uint256 public amount;
 
-    constructor (address _owner, uint256 _amount) {
+    constructor (address _owner) {
         owner = _owner;
-        amount = _amount;
     }
 
     function deposit(uint256 _amount) external override {

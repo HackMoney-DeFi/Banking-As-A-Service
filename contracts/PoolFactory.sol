@@ -38,10 +38,9 @@ contract PoolFactory {
      */
     function createPool(address owner, uint256 amount)
         public
-        onlyAmountGreaterThanZero(amount)
         requireSufficientBalance(owner, amount)
     {
-        Pool pool = new Pool(owner, amount);
+        Pool pool = new Pool(owner);
         poolMap[owner] = pool;
         poolList.push(pool);
         emit PoolCreated(owner, amount);

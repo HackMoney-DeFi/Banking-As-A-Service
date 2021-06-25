@@ -2,18 +2,18 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat")
 
 describe("PoolFactory contract", function () {
-  let PoolFactory;
-  let hardhatToken;
+  let poolFactoryContract;
+  let poolFactoryToken;
   let owner;
 
   beforeEach(async function () {
-    PoolFactory = await ethers.getContractFactory("PoolFactory");
+    poolFactoryContract = await ethers.getContractFactory("PoolFactory");
     [owner] = await ethers.getSigners();
 
-    hardhatToken = await PoolFactory.deploy();
-    await hardhatToken.deployed();
+    poolFactoryToken = await poolFactoryContract.deploy();
+    await poolFactoryToken.deployed();
 
-    await hardhatToken.deployed();
+    await poolFactoryToken.deployed();
   });
 
   // TODO: Add tests
