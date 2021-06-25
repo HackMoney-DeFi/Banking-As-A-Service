@@ -1,13 +1,14 @@
+//SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "./IPool.sol";
 
 /*
  * Pool contract which acts as a reserve for liquidity and can be used for lending, borrowing,
  * investing and other financial operations.
  */
-contract Pool is Initializable, IPool {
+contract Pool is IPool {
 
     /**
      * Address where the Pool gets created
@@ -19,7 +20,7 @@ contract Pool is Initializable, IPool {
      */
     uint256 public amount;
 
-    function initialize(address _owner, uint256 _amount) public initializer {
+    constructor (address _owner, uint256 _amount) {
         owner = _owner;
         amount = _amount;
     }
@@ -32,7 +33,7 @@ contract Pool is Initializable, IPool {
         //TODO: left intentionally blank
     }
 
-    function transfer(address to, address from, uint256 amount) {
+    function transfer(address to, address from, uint256 _amount) public override {
         // TODO: left intentionally blank
     }
 }

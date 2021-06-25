@@ -41,6 +41,12 @@ npm install
 npm start
 ```
 
+At any time, if you wish to compile your Solidity code
+
+```
+npx hardhat compile
+```
+
 > Note: There's [an issue in `ganache-core`](https://github.com/trufflesuite/ganache-core/issues/650) that can make the `npm install` step fail. 
 >
 > If you see `npm ERR! code ENOLOCAL`, try running `npm ci` instead of `npm install`.

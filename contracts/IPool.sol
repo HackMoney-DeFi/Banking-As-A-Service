@@ -1,6 +1,6 @@
-pragma solidity ^0.8.0;
+//SPDX-License-Identifier: UNLICENSED
 
-import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
+pragma solidity ^0.8.0;
 
 /*
  * Abstract interface that describes the behaviors of what a Pool should do
