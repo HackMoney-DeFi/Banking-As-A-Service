@@ -10,9 +10,14 @@ import "./Pool.sol";
 contract PoolFactory {
 
     /*
-     * Array to store created Pools
+     * Array to display all the existing Pools
      */
-    Pool[] public pools;
+    Pool[] public poolList;
+
+    /*
+     * Map to store the address of a Pool and its content
+     */
+    mapping(address => Pool) public poolMap;
 
     event PoolCreated(address owner, uint256 amount);
 
@@ -37,7 +42,8 @@ contract PoolFactory {
         requireSufficientBalance(owner, amount)
     {
         Pool pool = new Pool(owner, amount);
-        pools.push(pool);
+        poolMap[owner] = pool;
+        poolList.push(pool);
         emit PoolCreated(owner, amount);
     }
 
@@ -45,26 +51,21 @@ contract PoolFactory {
      * @dev Lists all the existing Pools
      */
     function listPools() public view returns(Pool[] memory) {
-        return pools;
+        return poolList;
     }
 
     /*
-     * @dev Gets the amount of liquidity in a Pool. Returns 0 if the Pool address is not found.
+     * @dev Gets the amount of liquidity in a Pool
      * @param _address the address of the Pool we want the amount for
      */
     function getPoolAmount(address _address) public view returns(uint256) {
-        for (uint256 i = 0; i < pools.length; i++) {
-            if (pools[i].owner() == _address) {
-                return pools[i].amount();
-            }
-        }
-        return uint256(0);
+        return poolMap[_address].amount();
     }
 
     /*
      * @dev Gets the total number of Pools created
      */
     function getPoolsSize() public view returns(uint256) {
-        return pools.length;
+        return poolList.length;
     }
 }
