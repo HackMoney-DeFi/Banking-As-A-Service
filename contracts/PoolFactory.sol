@@ -5,61 +5,37 @@ pragma solidity ^0.8.0;
 import "./Pool.sol";
 
 /*
- * Main factory which is used to create other Pools
+ * Main factory which is used to create Pools
  */
 contract PoolFactory {
 
     /*
-     * Array to display all the existing Pools
+     * Array to store all the created Pools
      */
-    Pool[] public poolList;
-
-    /*
-     * Map to store the address of a Pool and its content
-     */
-    mapping(address => Pool) public poolMap;
-
-    event PoolCreated(address owner, uint256 amount);
-
-    modifier requireSufficientBalance(address owner, uint256 amount) {
-        require(owner.balance >= amount, "Insufficient balance for transaction.");
-        _;
-    }
+    Pool[] public pools;
 
     /*
      * @dev Creates a Pool
-     * @param owner the address where the Pool gets created
-     * @param amount the amount of initial liquidity provided in the Pool
+     * @param name the name of the Pool
+     * @param admins list of addresses that have ADMIN privileges
      */
-    function createPool(address owner, uint256 amount)
-        public
-        requireSufficientBalance(owner, amount)
-    {
-        Pool pool = new Pool(owner);
-        poolMap[owner] = pool;
-        poolList.push(pool);
-        emit PoolCreated(owner, amount);
+    function createPool(string memory name, address[] memory admins) public returns (Pool) {
+        Pool pool = new Pool(name, admins);
+        pools.push(pool);
+        return pool;
     }
 
     /*
      * @dev Lists all the existing Pools
      */
     function listPools() public view returns(Pool[] memory) {
-        return poolList;
-    }
-
-    /*
-     * @dev Gets the amount of liquidity in a Pool
-     * @param _address the address of the Pool we want the amount for
-     */
-    function getPoolAmount(address _address) public view returns(uint256) {
-        return poolMap[_address].amount();
+        return pools;
     }
 
     /*
      * @dev Gets the total number of Pools created
      */
-    function getPoolsSize() public view returns(uint256) {
-        return poolList.length;
+    function getNumPools() public view returns(uint256) {
+        return pools.length;
     }
 }

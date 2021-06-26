@@ -10,18 +10,33 @@ import "./IPool.sol";
  */
 contract Pool is IPool {
 
-    /**
-     * Address where the Pool gets created
+    /*
+     * Total amount of liquidity that currently exists in the Pool
      */
-    address public owner;
+    uint256 private totalReserveBalance = uint256(0);
 
-    /**
-     * Total amount of liquidity in the Pool
+    /*
+     * Name of the Pool
      */
-    uint256 public amount;
+    string public name;
 
-    constructor (address _owner) {
-        owner = _owner;
+    /*
+     * List of users who have special roles such as managing funds and voting on loan requests
+     */
+    address[] public admins;
+
+    /*
+     * Map to keep track of how much a user has deposited to and withdrawn from the Pool
+     */
+    mapping(address => uint256) userBalance;
+
+    constructor (string memory _name, address[] memory _admins) {
+        name = _name;
+
+        // Deep copy
+        for (uint i = 0; i < _admins.length; i++) {
+            admins.push(_admins[i]);
+        }
     }
 
     function deposit(uint256 _amount) external override {
@@ -29,6 +44,14 @@ contract Pool is IPool {
     }
 
     function withdraw(uint256 _amount) external override {
+        //TODO: left intentionally blank
+    }
+
+    function addAdmin(address _address) external override {
+        //TODO: left intentionally blank
+    }
+
+    function removeAdmin(address _address) external override {
         //TODO: left intentionally blank
     }
 
