@@ -8,7 +8,7 @@ describe("PoolFactory contract", function () {
 
   beforeEach(async function () {
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
-    [owner, address1, address2] = await ethers.getSigners();
+    [address1, address2, admin1, admin2] = await ethers.getSigners();
 
     poolFactoryToken = await poolFactoryContract.deploy();
     await poolFactoryToken.deployed();
@@ -22,20 +22,26 @@ describe("PoolFactory contract", function () {
     // If the callback function is async, Mocha will `await` it.
     it("Should create a pool", async function () {
       //create a pool
-      poolRef = await poolFactoryToken.createPool("tadPool", [addy1.address]);
+      poolRef = await poolFactoryToken.createPool("TestPool1", [address1.address]);
       pools = await poolFactoryToken.listPools();
       expect( pools.length).to.equal(1);
     });
 
-    it("Pool should have admin var defined", async function () {
+    it("Factory should create a pool with the correct name, admins", async function () {
       // Acquire pool contract
-      poolRef = await poolFactoryToken.createPool("tadPool2", [addy2.address]);
-      poolConFac = await ethers.getContractFactory("Pool");
-      poolCon = await poolConFac.attach(addy2.address);
+      poolName = "TestPool2";
+      admins = [admin1.address, admin2.address];
+      poolRef = await poolFactoryToken.createPool(poolName, admins);
 
-      // just for demo
-      // remove if DS is changed
-      expect(await poolCon.admins.length).to.equal(0);
+      poolConFac = await ethers.getContractFactory("Pool");
+      poolAddress = (await poolFactoryToken.listPools())[0];
+      poolCon = await poolConFac.attach(poolAddress);
+
+      gotName = await poolCon.name();
+      gotAdmins = await poolCon.admins;
+
+      expect(await poolCon.admins(0)).to.equal(admins[0]);
+      expect(await poolCon.admins(1)).to.equal(admins[1]);
       
     });
  
