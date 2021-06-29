@@ -32,26 +32,26 @@ describe("FedToken contract", function () {
     // To deploy our contract, we just have to call Token.deploy() and await
     // for it to be deployed(), which happens onces its transaction has been
     // mined.
-    hardhatToken = await fedToken.deploy("FedToken", "FED");
-    await hardhatToken.deployed();
+    FEDToken = await fedToken.deploy("FedToken", "FED");
+    await FEDToken.deployed();
 
     // We can interact with the contract by calling `hardhatToken.method()`
-    await hardhatToken.deployed();
+    await FEDToken.deployed();
   });
 
   // You can nest describe calls to create subsections.
   describe("Deployment", function () {
       
     it("Has the right initialization", async function () {
-      expect(await hardhatToken.symbol()).to.equal("FED");
-      expect(await hardhatToken.name()).to.equal("FedToken")
+      expect(await FEDToken.symbol()).to.equal("FED");
+      expect(await FEDToken.name()).to.equal("FedToken")
     });
 
     it("Owner can mint", async function () {
-        expect(await hardhatToken.totalSupply()).to.equal(0)
-        await hardhatToken.mint(owner.address, 100000)
-        expect(await hardhatToken.totalSupply()).to.equal(100000)
-        expect(await hardhatToken.balanceOf(owner.address)).to.equal(100000)
+        expect(await FEDToken.totalSupply()).to.equal(0)
+        await FEDToken.mint(owner.address, 100000)
+        expect(await FEDToken.totalSupply()).to.equal(100000)
+        expect(await FEDToken.balanceOf(owner.address)).to.equal(100000)
     });
 
 
