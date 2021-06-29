@@ -16,34 +16,29 @@ describe("PoolFactory contract", function () {
 
   
   describe("Pool dynamics", function () {
-    // `it` is another Mocha function. This is the one you use to define your
-    // tests. It receives the test name, and a callback function.
-
-    // If the callback function is async, Mocha will `await` it.
     it("Should create a pool", async function () {
-      //create a pool
-      poolRef = await poolFactoryToken.createPool("TestPool1", [address1.address]);
-      pools = await poolFactoryToken.listPools();
-      expect( pools.length).to.equal(1);
+      //create a pool and test the listPools() & getNumPools() functions
+      await poolFactoryToken.createPool("TestPool1", [address1.address]);
+      const pools = await poolFactoryToken.listPools();
+      expect(pools.length).to.equal(1);
+      expect(await poolFactoryToken.getNumPools()).to.equal(1);
     });
 
-    it("Factory should create a pool with the correct name, admins", async function () {
-      // Acquire pool contract
-      poolName = "TestPool2";
-      admins = [admin1.address, admin2.address];
-      poolRef = await poolFactoryToken.createPool(poolName, admins);
+    it("Factory should create a pool with the correct name and admins", async function () {
+      // Create a Pool
+      const poolName = "TestPool2";
+      const admins = [admin1.address, admin2.address];
+      await poolFactoryToken.createPool(poolName, admins);
 
-      poolConFac = await ethers.getContractFactory("Pool");
-      poolAddress = (await poolFactoryToken.listPools())[0];
-      poolCon = await poolConFac.attach(poolAddress);
+      // Acquire the Pool contract and create an instance of that contract
+      const poolContract = await ethers.getContractFactory("Pool");
+      const poolAddress = (await poolFactoryToken.listPools())[0];
+      const poolContractInstance = await poolContract.attach(poolAddress);
 
-      gotName = await poolCon.name();
-      gotAdmins = await poolCon.admins;
-
-      expect(await poolCon.admins(0)).to.equal(admins[0]);
-      expect(await poolCon.admins(1)).to.equal(admins[1]);
-      
+      // Assert the expected values
+      expect(await poolContractInstance.name()).to.equal(poolName);
+      expect(await poolContractInstance.admins(0)).to.equal(admins[0]);
+      expect(await poolContractInstance.admins(1)).to.equal(admins[1]);
     });
- 
   });
 });
