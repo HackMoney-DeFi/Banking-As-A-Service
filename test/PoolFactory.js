@@ -8,7 +8,7 @@ describe("PoolFactory contract", function () {
 
   beforeEach(async function () {
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
-    [owner, addy1, addy2] = await ethers.getSigners();
+    [owner, address1, address2] = await ethers.getSigners();
 
     poolFactoryToken = await poolFactoryContract.deploy();
     await poolFactoryToken.deployed();
@@ -41,4 +41,3 @@ describe("PoolFactory contract", function () {
  
   });
 });
-
