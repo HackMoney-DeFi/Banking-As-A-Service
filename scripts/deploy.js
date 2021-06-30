@@ -19,17 +19,28 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const Token = await ethers.getContractFactory("Token");
-  const token = await Token.deploy();
-  await token.deployed();
+  const PoolFactory = await ethers.getContractFactory("PoolFactory");
+  const poolFactory = await PoolFactory.deploy();
+  await poolFactory.deployed();
 
-  console.log("Token address:", token.address);
+  [address1, admin1, admin2, admin3, admin4, admin5] = await ethers.getSigners();
+  await poolFactory.createPool("Ethiopian Farmers", [admin1.address, admin2.address]);
+  await poolFactory.createPool("BitCoin Birr Donation", [admin3.address, admin4.address]);
+  await poolFactory.createPool("Accra Credit Union", [admin4.address, admin5.address]);
+
+  const poolAddress = (await poolFactory.listPools());
+  console.log("Pools :", poolAddress)
+
+
+  //add sample pools
+
+  console.log("PoolFactory address:", poolFactory.address);
 
   // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(token);
+  saveFrontendFiles(poolFactory);
 }
 
-function saveFrontendFiles(token) {
+function saveFrontendFiles(poolFactory) {
   const fs = require("fs");
   const contractsDir = __dirname + "/../frontend/src/contracts";
 
@@ -39,14 +50,14 @@ function saveFrontendFiles(token) {
 
   fs.writeFileSync(
     contractsDir + "/contract-address.json",
-    JSON.stringify({ Token: token.address }, undefined, 2)
+    JSON.stringify({ PoolFactory: poolFactory.address }, undefined, 2)
   );
 
-  const TokenArtifact = artifacts.readArtifactSync("Token");
+  const PoolFactoryArtifact = artifacts.readArtifactSync("PoolFactory");
 
   fs.writeFileSync(
-    contractsDir + "/Token.json",
-    JSON.stringify(TokenArtifact, null, 2)
+    contractsDir + "/PoolFactory.json",
+    JSON.stringify(PoolFactoryArtifact, null, 2)
   );
 }
 
