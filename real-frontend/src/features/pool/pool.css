@@ -1,0 +1,62 @@
+.pool {
+    margin: 10px;
+    border-radius: 10px;
+    background-color: white;
+    border: 1px solid lightgray;
+    display: flex;
+    flex-direction: row;
+    /* filter: drop-shadow(0 0 3px lightgrey); */
+    height: 7em;
+}
+
+.pool:hover {
+}
+
+.pool-left {
+  border-right: 1px solid lightblue;
+  padding: 20px;
+  width: 80%;
+}
+
+.pool-right {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.pool-box {
+    transform:
+      rotateX(51deg)
+      rotateZ(43deg);
+    transform-style: preserve-3d;
+    border-radius: 32px;
+    box-shadow:
+      1px 1px 0 1px #f9f9fb,
+      -1px 0 28px 0 rgba(34, 33, 81, 0.01),
+      28px 28px 28px 0 rgba(34, 33, 81, 0.25);
+    transition:
+      .4s ease-in-out transform,
+      .4s ease-in-out box-shadow;
+}
+
+
+.pool-box:hover {
+    transform:
+      translate3d(0px, -16px, 0px)
+      rotateX(51deg)
+      rotateZ(43deg);
+    box-shadow:
+      1px 1px 0 1px #f9f9fb,
+      -1px 0 28px 0 rgba(34, 33, 81, 0.01),
+      54px 54px 28px -10px rgba(34, 33, 81, 0.15);
+  }
+.create-pool-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.create-pool-form > * {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
