@@ -4,18 +4,17 @@ const { ethers } = require("hardhat")
 describe("PoolFactory contract", function () {
   let poolFactoryContract;
   let poolFactoryToken;
-  let owner;
 
   beforeEach(async function () {
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
-    [address1, address2, admin1, admin2] = await ethers.getSigners();
+    [address1, admin1, admin2] = await ethers.getSigners();
 
     poolFactoryToken = await poolFactoryContract.deploy();
     await poolFactoryToken.deployed();
   });
 
   
-  describe("Pool dynamics", function () {
+  describe("PoolFactory dynamics", function () {
     it("Should create a pool", async function () {
       //create a pool and test the listPools() & getNumPools() functions
       await poolFactoryToken.createPool("TestPool1", [address1.address]);
@@ -37,8 +36,8 @@ describe("PoolFactory contract", function () {
 
       // Assert the expected values
       expect(await poolContractInstance.name()).to.equal(poolName);
-      expect(await poolContractInstance.admins(0)).to.equal(admins[0]);
-      expect(await poolContractInstance.admins(1)).to.equal(admins[1]);
+      expect(await poolContractInstance.admins(admins[0])).to.equal(true);
+      expect(await poolContractInstance.admins(admins[1])).to.equal(true);
     });
   });
 });
