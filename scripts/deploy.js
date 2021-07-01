@@ -22,6 +22,7 @@ async function main() {
   const PoolFactory = await ethers.getContractFactory("PoolFactory");
   const poolFactory = await PoolFactory.deploy();
   await poolFactory.deployed();
+  
 
   [address1, admin1, admin2, admin3, admin4, admin5] = await ethers.getSigners();
   console.log(admin1.address, admin2.address);
@@ -43,7 +44,7 @@ async function main() {
 
 function saveFrontendFiles(poolFactory) {
   const fs = require("fs");
-  const contractsDir = __dirname + "/../real-frontend/src/contracts";
+  const contractsDir = __dirname + "/../frontend/src/contracts";
 
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir);
@@ -59,6 +60,13 @@ function saveFrontendFiles(poolFactory) {
   fs.writeFileSync(
     contractsDir + "/PoolFactory.json",
     JSON.stringify(PoolFactoryArtifact, null, 2)
+  );
+
+  const PoolArtifact = artifacts.readArtifactSync("Pool");
+
+  fs.writeFileSync(
+    contractsDir + "/Pool.json",
+    JSON.stringify(PoolArtifact, null, 2)
   );
 }
 

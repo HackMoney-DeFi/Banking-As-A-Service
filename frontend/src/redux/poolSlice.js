@@ -4,7 +4,8 @@ import React from "react";
 import { ethers } from "ethers";
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
-import PoolArtifact from '../contracts/PoolFactory.json';
+import PoolFactoryArtifact from '../contracts/PoolFactory.json';
+import PoolArtifact from '../contracts/Pool.json';
 import contractAddress from '../contracts/contract-address.json';
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -19,6 +20,8 @@ import { createSlice } from '@reduxjs/toolkit';
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
 // to use when deploying to other networks.
 const HARDHAT_NETWORK_ID = '31337';
+
+
 
 const initialState = {
     status: 'idle',
@@ -43,6 +46,9 @@ const dappSlice = createSlice({
       setUserAddress(state, action) {
           state.selectedAddress = action.payload;
       },
+      setPoolMap(state, action) {
+        state.poolMap = action.payload;
+      },
       setToken(state,action) {
           state.token = action.payload;
       },
@@ -66,7 +72,7 @@ const dappSlice = createSlice({
   })
   
   export const { actions: { 
-      walletLoading, setToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setEthers  
+      walletLoading, setToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
@@ -81,19 +87,43 @@ const dappSlice = createSlice({
 
     const token = new ethers.Contract(
       contractAddress.PoolFactory,
-      PoolArtifact.abi,
+      PoolFactoryArtifact.abi,
       provider.getSigner(0)
     );
 
     dispatch(setToken(token));
   };
 
+
   const getPoolsList = () => async (dispatch, getState) => {
     const selectedAddress = getState().dapp.selectedAddress;
     console.log({ selectedAddress });
-    const newPool = await getState().dapp.token.createPool("TestPool1", [selectedAddress]);
-    const pools = await getState().dapp.token.listPools();
-    console.log(pools);
+
+    // a map of (pool address) to pool contract
+    // can do 
+    
+    // poolMap['xerandomadress'].name()
+    // poolMap['xerandomadress'].isAdmin(address)
+    const poolMap = new Map()
+
+
+    //list pool addresses first
+    const poolAddresses = await getState().dapp.token.listPools();
+    for (var i = 0; i < poolAddresses.length; i++) {
+      let poolGen = await new ethers.ContractFactory(
+        PoolArtifact.abi,
+        PoolArtifact.bytecode, 
+        getState().dapp.provider.getSigner(0)
+      );
+
+      let pool = await poolGen.attach(poolAddresses[i]);
+      poolMap[poolAddresses[i]] = pool;     
+      console.log(await pool.name());
+    }
+    
+    //console.log(poolMap);
+    dispatch(setPoolMap(poolMap));
+
   }
 
   const _checkNetwork = () => async (dispatch) => {
