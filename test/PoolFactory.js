@@ -43,6 +43,31 @@ describe("PoolFactory contract", function () {
   it("Sufficient balance to create pool", async function () {
       await StkToken(ethers.BigNumber.from("1000000000000000000000000000")) //sufficient balance
       await expect( poolFactoryInstance.createPool("Whoopty", [bob.address, alice.address])).to.not.be.reverted
+
+      const pools = await poolFactoryInstance.listPools();
+      expect(pools.length).to.equal(1);
+      expect(await poolFactoryInstance.getNumPools()).to.equal(1);
+  });
+
+
+
+  it("Factory should create a pool with the correct name and admins", async function () {
+    // Create a Pool
+    await StkToken(ethers.BigNumber.from("1000000000000000000000000000")) //sufficient balance
+    const poolName = "TestPool2";
+    const admins  = [bob.address, alice.address]
+    await expect( poolFactoryInstance.createPool(poolName, admins)).to.not.be.reverted
+
+
+    // Acquire the Pool contract and create an instance of that contract
+    const poolContract = await ethers.getContractFactory("Pool");
+    const poolAddress = (await poolFactoryInstance.listPools())[0];
+    const poolContractInstance = await poolContract.attach(poolAddress);
+
+    // Assert the expected values
+    expect(await poolContractInstance.name()).to.equal(poolName);
+    expect(await poolContractInstance.admins(admins[0])).to.equal(true);
+    expect(await poolContractInstance.admins(admins[1])).to.equal(true);
   });
 
 

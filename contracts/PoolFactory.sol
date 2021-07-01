@@ -18,8 +18,13 @@ contract PoolFactory {
      */
     Pool[] public pools;
     
+    
+    // Address to the sakedToken contractt 
     address private StkToken;
 
+    /*
+     * Minimum staked amount need to create a new NMLP
+     */
     uint256 private minStakeAmount = 1000000000000000000000;
 
 

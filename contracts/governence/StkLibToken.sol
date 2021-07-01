@@ -26,6 +26,7 @@ contract StkLibToken is ERC20, ReentrancyGuard{
     }
 
     function stake(uint256 amount) external nonReentrant {
+        require(amount > 0, "StakeLibToken: Cannot stake 0 amount");
         IERC20(LibToken).transferFrom(msg.sender, address(this), amount);
         _stake(amount);
     }
@@ -37,7 +38,6 @@ contract StkLibToken is ERC20, ReentrancyGuard{
     }
 
     function _stake(uint256 amount) internal  {
-        require(amount > 0, "StakeLibToken: Cannot stake 0");
         _mint(msg.sender, amount);
         emit Stake(msg.sender, amount);
     }
