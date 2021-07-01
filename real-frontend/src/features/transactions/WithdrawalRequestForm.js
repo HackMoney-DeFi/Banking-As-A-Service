@@ -1,25 +1,21 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
-import { closeSidePanel } from '../../redux/viewSlice';
+import React from "react";
+import { useDispatch } from "react-redux";
+import { closeSidePanel } from "../../redux/viewSlice";
+import "./transactions.css";
 
 const WidthdrawalRequestForm = () => {
-  const dispatch = useDispatch();
-
-  const handleClose = () => {
-    dispatch(closeSidePanel());
-  };
-
   return (
-    <div>
-      <h3>Request Withdrawal</h3>
+    <div className="transaction">
+      <h5>Deposit</h5>
+      <div className="transaction-form">
         <form>
           <label for="amt">Amount:</label>
           <input type="number" id="lname" name="lname" />
         </form>
-        <button>Submit</button>
-        <button onClick={handleClose}>Close</button>
+        <button className="btn btn-sm">Submit</button>
+      </div>
     </div>
   );
 };
- 
+
 export default WidthdrawalRequestForm;

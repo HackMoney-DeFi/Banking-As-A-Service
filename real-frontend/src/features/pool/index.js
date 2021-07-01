@@ -16,6 +16,7 @@ function Pool({ name, amount, admins }) {
       <div className="pool">
         <div className="pool-left">
         <h5>{name}</h5>
+        <h6><span className="mr-2">⛑ </span>{admins.length} Admins</h6>
         </div>
         <div className="pool-right">
           <h6>${amount}K</h6>

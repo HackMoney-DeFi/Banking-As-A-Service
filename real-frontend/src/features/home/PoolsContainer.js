@@ -50,7 +50,8 @@ const myPools = [
   }
 ];
 function PoolsContainer() {
-  const userId = useSelector(state => state.user.userId);
+  const userId = useSelector(state => state.pool.selectedAddress);
+  
   const [view, setView] = useState("all");
   const [poolList, setPoolList] = useState(allPools);
 
@@ -68,7 +69,8 @@ function PoolsContainer() {
   return (
     <div className="pools">
       {userId && (
-        <ul className="nav nav-pills">
+        <>
+        <ul className="nav nav-pills nav-pools">
           <li className="nav-item">
             <a className={activeTabClass("all")} onClick={() => setView("all")}>
               All Pools
@@ -83,12 +85,13 @@ function PoolsContainer() {
             </a>
           </li>
         </ul>
+        <div className="pools-container">
+          {poolList.map(p => (
+            <Pool name={p.name} amount={p.amount} admins={p.admins} />
+          ))}
+        </div>
+        </>
       )}
-      <div className="pools-container">
-        {poolList.map(p => (
-          <Pool name={p.name} amount={p.amount} admins={p.admins} />
-        ))}
-      </div>
     </div>
   );
 }

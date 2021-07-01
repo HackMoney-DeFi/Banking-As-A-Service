@@ -1,4 +1,8 @@
 .landing {
-    height: 50em;
-    padding: 10em;
+    height: auto;
+    padding: 3em;
+    background-color: white;
+
+    border-top: 1px solid #dae0e5;
+    border-bottom: 1px solid #dae0e5;
 }

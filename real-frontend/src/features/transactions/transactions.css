@@ -1,0 +1,9 @@
+.transaction {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.transaction-form {
+    display: flex;
+    flex-direction: row;
+}

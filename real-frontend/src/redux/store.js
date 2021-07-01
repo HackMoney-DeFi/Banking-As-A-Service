@@ -12,7 +12,7 @@ const store = configureStore({
   reducer: {
     view: viewReducer,
     user: userReducer,
-    dapp: poolReducer
+    pool: poolReducer
   },
   middleware: customizedMiddleware
 });

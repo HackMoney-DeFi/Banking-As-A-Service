@@ -1,33 +1,31 @@
 import { setSidePanel } from "../../redux/viewSlice";
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from "../../redux/userSlice";
 import { connectWallet } from "../../redux/poolSlice";
 
 function Header() {
   const dispatch = useDispatch();
-  const userId = useSelector(state => state.user.userId);
+  const userAddress = useSelector(state => state.pool.selectedAddress);
 
   const handleCreatePool = () => {
     dispatch(setSidePanel('createPool'));  
   }
 
   const handleLogin = () => {
-    dispatch(login());
     dispatch(connectWallet());  
   }
 
   return (
       <header>
-          <div>
+          <h2>
               Poolio
-          </div>
+          </h2>
           <div>
             {
-              userId ? (
+              userAddress ? (
                 <button className="btn accent-btn" onClick={() => handleCreatePool()}>Create Pool</button>
               ) :
               (
-                <button className="btn accent-btn" onClick={() => handleLogin()}>Login</button>
+                <button className="btn accent-btn" onClick={() => handleLogin()}>Connect</button>
               )
             }
           </div>

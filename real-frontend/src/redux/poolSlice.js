@@ -1,4 +1,3 @@
-import React from "react";
 
 // We'll use ethers to interact with the Ethereum network and our contract
 import { ethers } from "ethers";
@@ -71,6 +70,7 @@ const dappSlice = createSlice({
 
  const _initialize = () => async (dispatch, getState) => {
     dispatch(_initializeEthers());
+    dispatch(createDefaultPools());
     dispatch(getPoolsList());
   };
 
@@ -88,11 +88,20 @@ const dappSlice = createSlice({
     dispatch(setToken(token));
   };
 
+  export const createDefaultPools = () => async (dispatch, getState) => {
+    // await getState().pool.token.createPool("Ethiopian Farmers", ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8']);
+    // await getState().pool.token.createPool("BitCoin Birr Donation", ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']);
+    // await getState().pool.token.createPool("Accra Credit Union", ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']);
+  }
+
+  export const createPool = (poolName, admins) => async (dispatch, getState) => {
+    console.log('creating pool ', poolName, ' with admins ', admins);
+    await getState().pool.token.createPool(poolName, [...admins]);
+ }
   const getPoolsList = () => async (dispatch, getState) => {
-    const selectedAddress = getState().dapp.selectedAddress;
+    const selectedAddress = getState().pool.selectedAddress;
     console.log({ selectedAddress });
-    const newPool = await getState().dapp.token.createPool("TestPool1", [selectedAddress]);
-    const pools = await getState().dapp.token.listPools();
+    const pools = await getState().pool.token.listPools();
     console.log(pools);
   }
 

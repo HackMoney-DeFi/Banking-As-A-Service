@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { closeSidePanel, setSidePanel } from "../../../redux/viewSlice";
+import DepositForm from "../../transactions/DepositRequestForm";
+import WidthdrawalRequestForm from '../../transactions/WithdrawalRequestForm';
 
 const PoolDetails = ({ name, amount, admins }) => {
   const dispatch = useDispatch();
@@ -29,9 +31,13 @@ const PoolDetails = ({ name, amount, admins }) => {
       <h2>{name}</h2>
       <br />
       <span>${amount}K</span>
-      <span>{admins}</span>
-      <button onClick={handleDeposit} className="btn mt-2">Deposit</button>
-      {isAdmin && <button onClick={handleWithdraw} className="btn mt-2">Withdraw</button>}
+      <span>Admins: {admins}</span>
+      <DepositForm />
+      {
+        isAdmin && (
+          <WidthdrawalRequestForm />
+        )
+      }
       <button className="btn mt-2" onClick={handleClose}>
         Close
       </button>

@@ -51,12 +51,20 @@
       -1px 0 28px 0 rgba(34, 33, 81, 0.01),
       54px 54px 28px -10px rgba(34, 33, 81, 0.15);
   }
-.create-pool-form {
+.create-pool {
   display: flex;
   flex-direction: column;
 }
 
-.create-pool-form > * {
-  margin-top: 4px;
-  margin-bottom: 4px;
+.create-pool-form {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.nav-pools {
+  justify-content: center;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+  border: 1px solid lightgray;
 }
