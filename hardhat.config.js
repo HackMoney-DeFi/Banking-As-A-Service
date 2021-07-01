@@ -15,5 +15,10 @@ module.exports = {
         runs: 1000
       }
     }
+  },
+  networks: {
+    hardhat: {
+      chainId: 1337
+    },
   }
 };

@@ -24,6 +24,7 @@ async function main() {
   await poolFactory.deployed();
 
   [address1, admin1, admin2, admin3, admin4, admin5] = await ethers.getSigners();
+  console.log(admin1.address, admin2.address);
   await poolFactory.createPool("Ethiopian Farmers", [admin1.address, admin2.address]);
   await poolFactory.createPool("BitCoin Birr Donation", [admin3.address, admin4.address]);
   await poolFactory.createPool("Accra Credit Union", [admin4.address, admin5.address]);
@@ -42,7 +43,7 @@ async function main() {
 
 function saveFrontendFiles(poolFactory) {
   const fs = require("fs");
-  const contractsDir = __dirname + "/../frontend/src/contracts";
+  const contractsDir = __dirname + "/../real-frontend/src/contracts";
 
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir);

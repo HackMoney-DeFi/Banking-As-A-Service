@@ -4,7 +4,7 @@ import React from "react";
 import { ethers } from "ethers";
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
-import PoolArtifact from '../contracts/Pool.json';
+import PoolArtifact from '../contracts/PoolFactory.json';
 import contractAddress from '../contracts/contract-address.json';
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -70,17 +70,8 @@ const dappSlice = createSlice({
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
-     const selectedAddress = getState().dapp.selectedAddress;
-    // This method initializes the dapp
     dispatch(_initializeEthers());
-    const name = await getState().dapp.token.name();
-    const symbol = await getState().dapp.token.symbol();
-
-    console.log(name, symbol);
-    dispatch(setTokenData({ tokenData: { name, symbol }}));
-
-    const balance = await getState().dapp.token.balanceOf(selectedAddress);
-    dispatch(setBalance(balance));
+    dispatch(getPoolsList());
   };
 
 
@@ -88,30 +79,21 @@ const dappSlice = createSlice({
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     dispatch(setProvider(provider));
 
-    // When, we initialize the contract using that provider and the token's
-    // artifact. You can do this same thing with your contracts.
     const token = new ethers.Contract(
-      contractAddress.Token,
+      contractAddress.PoolFactory,
       PoolArtifact.abi,
       provider.getSigner(0)
     );
 
-    console.log(setToken);
     dispatch(setToken(token));
   };
 
- const _getTokenData = () => async (dispatch) => {
-    const name = await this._token.name();
-    const symbol = await this._token.symbol();
-
-    dispatch(setTokenData({tokenData: { name, symbol }} ));
-  };
-
- const _updateBalance = () => async (dispatch, getState) => {
-    const selectedAddress = getState().selectedAddress;
-    const balance = await this._token.balanceOf(selectedAddress);
-    // DO THIS AIDA
-    console.log({ balance });
+  const getPoolsList = () => async (dispatch, getState) => {
+    const selectedAddress = getState().dapp.selectedAddress;
+    console.log({ selectedAddress });
+    const newPool = await getState().dapp.token.createPool("TestPool1", [selectedAddress]);
+    const pools = await getState().dapp.token.listPools();
+    console.log(pools);
   }
 
   const _checkNetwork = () => async (dispatch) => {
@@ -130,7 +112,6 @@ const dappSlice = createSlice({
  export const connectWallet = () => async (dispatch, getState) => {
     dispatch(walletLoading());
 
-    // First we check the network
     const isConnected = dispatch(_checkNetwork());
     if (!isConnected) {
         return;
@@ -141,12 +122,10 @@ const dappSlice = createSlice({
     dispatch(setUserAddress(selectedAddress));
     dispatch(_initialize());
   
-    // We reinitialize it whenever the user changes their account.
     window.ethereum.on("accountsChanged", ([newAddress]) => {
-      // UNCOMMENT THIS @AIDA
-      //   if (newAddress === undefined) {
-    //     return this._resetState();
-    //   }
+        if (newAddress === undefined) {
+          dispatch(resetState());
+        }
         _initialize(newAddress);
     });
     
@@ -156,11 +135,7 @@ const dappSlice = createSlice({
       dispatch(resetState());
     });
   };
-  
 
-  
-  // Destructure and export the plain action creators
-//   export const { usersLoading, usersReceived } = usersSlice.actions
   
  
   

@@ -1,7 +1,7 @@
 import { setSidePanel } from "../../redux/viewSlice";
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from "../../redux/userSlice";
-import { connectWallet } from "../../redux/dappSlice";
+import { connectWallet } from "../../redux/poolSlice";
 
 function Header() {
   const dispatch = useDispatch();
