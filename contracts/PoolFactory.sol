@@ -2,8 +2,12 @@
 
 pragma solidity ^0.8.0;
 
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 import "./Pool.sol";
 
+import "hardhat/console.sol";
 /*
  * Main factory which is used to create Pools
  */
@@ -13,6 +17,20 @@ contract PoolFactory {
      * Array to store all the created Pools
      */
     Pool[] public pools;
+    
+    
+    // Address to the sakedToken contractt 
+    address private StkToken;
+
+    /*
+     * Minimum staked amount need to create a new NMLP
+     */
+    uint256 private minStakeAmount = 1000000000000000000000;
+
+
+    constructor (address stkToken) {
+        StkToken = stkToken;
+    }
 
     /*
      * @dev Creates a Pool
@@ -20,6 +38,9 @@ contract PoolFactory {
      * @param admins list of addresses that have ADMIN privileges
      */
     function createPool(string memory name, address[] memory admins) public returns (Pool) {
+        uint256 stakedBalance = IERC20(StkToken).balanceOf(msg.sender);
+        require(stakedBalance >= minStakeAmount, "Insufficient staked balance to create pool");
+
         Pool pool = new Pool(name, admins);
         pools.push(pool);
         return pool;
@@ -37,5 +58,12 @@ contract PoolFactory {
      */
     function getNumPools() public view returns(uint256) {
         return pools.length;
+    }
+
+    /*
+    *@dev Gets the minimum stake amount to create a pool
+    */
+    function getMinStakeAmount() public view returns(uint256) {
+        return minStakeAmount;
     }
 }
