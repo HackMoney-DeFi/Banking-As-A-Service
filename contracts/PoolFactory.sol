@@ -1,13 +1,10 @@
 //SPDX-License-Identifier: UNLICENSED
-
 pragma solidity ^0.8.0;
 
-
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
 import "./Pool.sol";
-
 import "hardhat/console.sol";
+
 /*
  * Main factory which is used to create Pools
  */
@@ -18,15 +15,13 @@ contract PoolFactory {
      */
     Pool[] public pools;
     
-    
-    // Address to the sakedToken contractt 
+    // Address of the stakedToken contract
     address private StkToken;
 
     /*
      * Minimum staked amount need to create a new NMLP
      */
     uint256 private minStakeAmount = 1000000000000000000000;
-
 
     constructor (address stkToken) {
         StkToken = stkToken;

@@ -7,13 +7,24 @@ pragma solidity ^0.8.0;
  */
 abstract contract IPool {
 
-    function deposit(uint256 amount) external virtual;
+    function depositUSDC(
+        address usdcAddress,
+        address kTokenAddress,
+        uint256 usdcAmount) external virtual;
 
-    function withdraw(uint256 amount) external virtual;
+    function withdrawInKoloToken(
+        address usdcAddress,
+        address kTokenAddress,
+        uint256 kTokenAmount) external virtual;
 
     function addAdmin(address _address) external virtual;
 
     function removeAdmin(address _address) external virtual;
 
-    function transfer(address to, address from, uint256 amount) public virtual;
+    function doUSDCTransfer(
+        address usdcAddress,
+        address kTokenAddress,
+        address from,
+        address to,
+        uint256 amount) internal virtual returns (bool);
 }

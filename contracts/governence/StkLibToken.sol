@@ -1,5 +1,5 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -12,7 +12,6 @@ contract StkLibToken is ERC20, ReentrancyGuard{
     // Address of LibToken contract
     address public LibToken;
 
-
     event Stake(address indexed staker, uint256 amount);
     event Unstake(address indexed staker, uint256 burntAmount);
 
@@ -22,7 +21,6 @@ contract StkLibToken is ERC20, ReentrancyGuard{
         string memory symbol
     ) ERC20(name, symbol) {
         LibToken = libToken;
-
     }
 
     function stake(uint256 amount) external nonReentrant {
@@ -50,7 +48,5 @@ contract StkLibToken is ERC20, ReentrancyGuard{
         IERC20(LibToken).transfer(msg.sender, amount);
         emit Unstake(msg.sender, amount);
     }
-    
-
 }
 
