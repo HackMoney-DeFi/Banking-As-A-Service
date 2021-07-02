@@ -9,7 +9,6 @@ describe("Pool contract", function () {
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
     [admin, nonAdmin, nonAdmin1, alice, governence] = await ethers.getSigners();
 
-
     auditLibraryFactory = await ethers.getContractFactory("AuditorReports")
     auditLibrary = await auditLibraryFactory.deploy()
     await auditLibrary.deployed();
@@ -21,8 +20,6 @@ describe("Pool contract", function () {
     skLibFactorty = await ethers.getContractFactory("StkLibToken")
     skLibToken = await skLibFactorty.deploy(LibToken.address, "stkLib Token",  "stkLib")
     await skLibToken.deployed();
-
-
 
     poolFactoryToken = await poolFactoryContract.deploy(skLibToken.address, governence.address);
     await poolFactoryToken.deployed();
@@ -54,7 +51,7 @@ describe("Pool contract", function () {
       // Sanity check then proceed to adding the user as an admin
       expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(false);
       
-      const msgSender = await poolContractInstance.addAdmin(nonAdmin.address);
+      await poolContractInstance.addAdmin(nonAdmin.address);
       expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(true);
 
       // add extra admin to test count
@@ -83,13 +80,25 @@ describe("Pool contract", function () {
         // user not a governer
         await expect( poolContractInstance.AddAuditReport(audit)).to.be.revertedWith("Only Governence allowed operation")
         
-
         // User is governer
         await expect( poolContractInstance.connect(governence).AddAuditReport(audit)).to.not.be.reverted
 
         auditReport = await poolContractInstance.getAudits()
         expect(auditReport.HistoricalAudits.length).to.equal(1)
-    })
+    });
+
+    it ("Transfer funds", async function() {
+
+      await StkToken(ethers.BigNumber.from("1000000000000000000000000000"))
+      //create a pool and an instance of the contract
+      await poolFactoryToken.createPool("TestPool1", [admin.address]);
+      const poolAddress = (await poolFactoryToken.listPools())[0];
+      const poolContract = await ethers.getContractFactory("Pool");
+      const poolContractInstance = await poolContract.attach(poolAddress);
+
+      // TODO add test scenarios
+    });
+
 
   });
 });

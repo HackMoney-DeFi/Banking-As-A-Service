@@ -82,13 +82,13 @@ contract Pool is IPool, ReentrancyGuard {
         }
     }
 
-    /**
-    * @dev deposits The underlying asset (currently USDC) into the reserve. A corresponding amount
-    * of the overlying asset (KOLOs) is minted.
-    * @param usdcAddress address of the usdcToken contract
-    * @param kTokenAddress address of the KoloToken contract
-    * @param usdcAmount the amount to be deposited
-    **/
+    /*
+     * @dev deposits The underlying asset (currently USDC) into the reserve. A corresponding amount
+     * of the overlying asset (KOLOs) is minted.
+     * @param usdcAddress address of the usdcToken contract
+     * @param kTokenAddress address of the KoloToken contract
+     * @param usdcAmount the amount to be deposited
+     */
     function depositUSDC(address usdcAddress, address kTokenAddress, uint256 usdcAmount) external
         nonReentrant
         requireDepositOrWithdrawMoreThanZero(usdcAmount)
@@ -110,6 +110,12 @@ contract Pool is IPool, ReentrancyGuard {
         emit AddedAuditReport(_audit);
     }
 
+    /*
+     * @dev Converts KOLO to USDC and transfers respective amounts to addresses
+     * @param usdcAddress address of the usdcToken contract
+     * @param kTokenAddress address of the KoloToken contract
+     * @param kTokenAmount the amount to be withdrawn
+     */
     function withdrawInKoloToken(address usdcAddress, address kTokenAddress, uint256 kTokenAmount)
         external
         nonReentrant

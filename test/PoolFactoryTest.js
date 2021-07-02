@@ -12,12 +12,9 @@ describe("PoolFactory contract", function () {
     LibToken = await libFactory.deploy("LibToken", "Lib");
     await LibToken.deployed();
 
-
     skLibFactorty = await ethers.getContractFactory("StkLibToken")
     skLibToken = await skLibFactorty.deploy(LibToken.address, "stkLib Token",  "stkLib")
     await skLibToken.deployed();
-
-
 
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
     poolFactoryInstance = await poolFactoryContract.deploy(skLibToken.address, governence.address);
@@ -51,8 +48,6 @@ describe("PoolFactory contract", function () {
       expect(await poolFactoryInstance.getNumPools()).to.equal(1);
   });
 
-
-
   it("Factory should create a pool with the correct name and admins", async function () {
     // Create a Pool
     await StkToken(ethers.BigNumber.from("1000000000000000000000000000")) //sufficient balance
@@ -71,6 +66,4 @@ describe("PoolFactory contract", function () {
     expect(await poolContractInstance.isAdmin(admins[0])).to.equal(true);
     expect(await poolContractInstance.isAdmin(admins[1])).to.equal(true);
   });
-
-
 });

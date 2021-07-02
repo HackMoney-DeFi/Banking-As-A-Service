@@ -31,7 +31,7 @@ contract StkLibToken is ERC20, ReentrancyGuard{
 
     function unstake(uint256 amount) external nonReentrant {
         uint256 balance = balanceOf(msg.sender);
-        require(balance >= amount, "Insufficent balanece to unstake");
+        require(balance >= amount, "Amount exceeds balance.");
         _unstake(amount);
     }
 

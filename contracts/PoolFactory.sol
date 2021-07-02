@@ -18,7 +18,6 @@ contract PoolFactory {
     // Address of the stakedToken contract
     address private StkToken;
 
-
     address private governence;
 
     /*
