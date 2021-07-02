@@ -3,7 +3,8 @@
 import { ethers } from "ethers";
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
-import PoolArtifact from '../contracts/PoolFactory.json';
+import PoolFactoryArtifact from '../contracts/PoolFactory.json';
+import PoolArtifact from '../contracts/Pool.json';
 import contractAddress from '../contracts/contract-address.json';
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -39,6 +40,9 @@ const dappSlice = createSlice({
           state.status = 'success'
         }
       },
+      setPoolMap(state, action) {
+        state.poolMap = action.payload;
+      },
       setUserAddress(state, action) {
           state.selectedAddress = action.payload;
       },
@@ -65,7 +69,7 @@ const dappSlice = createSlice({
   })
   
   export const { actions: { 
-      walletLoading, setToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setEthers  
+      walletLoading, setToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
@@ -81,7 +85,7 @@ const dappSlice = createSlice({
 
     const token = new ethers.Contract(
       contractAddress.PoolFactory,
-      PoolArtifact.abi,
+      PoolFactoryArtifact.abi,
       provider.getSigner(0)
     );
 
@@ -98,11 +102,37 @@ const dappSlice = createSlice({
     console.log('creating pool ', poolName, ' with admins ', admins);
     await getState().pool.token.createPool(poolName, [...admins]);
  }
+
   const getPoolsList = () => async (dispatch, getState) => {
     const selectedAddress = getState().pool.selectedAddress;
     console.log({ selectedAddress });
-    const pools = await getState().pool.token.listPools();
-    console.log(pools);
+
+
+    //To access pool metadata
+    // poolMap['xerandomadress'].name()
+    // poolMap['xerandomadress'].isAdmin(address)
+    const poolMap = new Map()
+
+    
+    //list pool addresses first
+    const poolAddresses = await getState().pool.token.listPools();
+    for (var i = 0; i < poolAddresses.length; i++) {
+      let poolGen = await new ethers.ContractFactory(
+        PoolArtifact.abi,
+        PoolArtifact.bytecode, 
+        getState().pool.provider.getSigner(0)
+      );
+
+      let pool = await poolGen.attach(poolAddresses[i]);
+      poolMap[poolAddresses[i]] = pool;     
+
+
+      //This is for demo purposes
+      await console.log(await pool.name());
+      await console.log(await pool.totalAdmins());
+      await console.log(pool.isAdmin);
+    }
+
   }
 
   const _checkNetwork = () => async (dispatch) => {

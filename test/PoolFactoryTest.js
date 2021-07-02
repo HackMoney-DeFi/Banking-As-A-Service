@@ -6,7 +6,7 @@ describe("PoolFactory contract", function () {
   let bob;
 
   beforeEach(async function () {
-    [alice, bob] = await ethers.getSigners();
+    [alice, bob, governence] = await ethers.getSigners();
 
     libFactory = await ethers.getContractFactory("LibToken");
     LibToken = await libFactory.deploy("LibToken", "Lib");
@@ -17,8 +17,10 @@ describe("PoolFactory contract", function () {
     skLibToken = await skLibFactorty.deploy(LibToken.address, "stkLib Token",  "stkLib")
     await skLibToken.deployed();
 
+
+
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
-    poolFactoryInstance = await poolFactoryContract.deploy(skLibToken.address);
+    poolFactoryInstance = await poolFactoryContract.deploy(skLibToken.address, governence.address);
 
     await poolFactoryInstance.deployed();
   });
@@ -66,8 +68,8 @@ describe("PoolFactory contract", function () {
 
     // Assert the expected values
     expect(await poolContractInstance.name()).to.equal(poolName);
-    expect(await poolContractInstance.admins(admins[0])).to.equal(true);
-    expect(await poolContractInstance.admins(admins[1])).to.equal(true);
+    expect(await poolContractInstance.isAdmin(admins[0])).to.equal(true);
+    expect(await poolContractInstance.isAdmin(admins[1])).to.equal(true);
   });
 
 

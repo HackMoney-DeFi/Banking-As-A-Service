@@ -6,6 +6,8 @@ import "./IPool.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./KoloToken.sol";
+import "./library/audit.sol";
+import "hardhat/console.sol";
 
 /*
  * Pool contract which acts as a reserve for liquidity and can be used for lending, borrowing,
@@ -26,10 +28,27 @@ contract Pool is IPool, ReentrancyGuard {
     /*
      * Map to keep track of users who have special roles such as managing funds and voting on loan requests
      */
-    mapping(address => bool) public admins;
+    mapping(address => bool) public isAdmin;
 
+    /*
+     * Total number of admins in the Pool
+     */
+    uint256 public totalAdmins = uint256(0);
+
+    /*
+     * List of audit reports
+     */
+    AuditorReports.Reports internal audits;
+
+    address private governer;
+
+    modifier onlyGoverner {
+        require(msg.sender == governer, "Only Governence allowed operation");
+        _;
+    }
+    
     modifier requireUserIsAdmin(address _address) {
-        require(admins[_address] == true,
+        require(isAdmin[_address] == true,
             "User is not authorized to perform operation because they are not an Admin.");
         _;
     }
@@ -42,17 +61,24 @@ contract Pool is IPool, ReentrancyGuard {
     event AddedAdmin(address _address);
 
     event RemovedAdmin(address _adddress);
+    
+    event AddedAuditReport(AuditorReports.Audit _audit);
 
     event DepositedUSDC(address _address, uint256 usdcAmount);
 
     event WithdrewKOLO(address _address, uint256 kTokenAmount);
 
-    constructor (string memory _name, address[] memory _admins) {
+    constructor (
+        string memory _name,
+        address _governer,
+        address[] memory _admins) {
         name = _name;
+        governer = _governer;
 
         // Deep copy
         for (uint i = 0; i < _admins.length; i++) {
-            admins[_admins[i]] = true;
+            isAdmin[_admins[i]] = true;
+            totalAdmins += 1;
         }
     }
 
@@ -78,6 +104,11 @@ contract Pool is IPool, ReentrancyGuard {
         // Mint equivalent KOLO
         KoloToken(kTokenAddress).mint(msg.sender, usdcAmount);
     }
+    
+    function AddAuditReport(AuditorReports.Audit memory _audit) external onlyGoverner {
+        audits.HistoricalAudits.push(_audit);
+        emit AddedAuditReport(_audit);
+    }
 
     function withdrawInKoloToken(address usdcAddress, address kTokenAddress, uint256 kTokenAmount)
         external
@@ -99,13 +130,21 @@ contract Pool is IPool, ReentrancyGuard {
     }
 
     function addAdmin(address _address) external override requireUserIsAdmin(msg.sender) {
-        admins[_address] = true;
-        emit AddedAdmin(_address);
+        if (!isAdmin[_address])
+            isAdmin[_address] = true;
+            totalAdmins += 1;
+            emit AddedAdmin(_address);
     }
 
     function removeAdmin(address _address) external override requireUserIsAdmin(msg.sender) {
-        delete admins[_address];
-        emit RemovedAdmin(_address);
+        if (isAdmin[_address])
+            delete isAdmin[_address];
+            totalAdmins -= 1;
+            emit RemovedAdmin(_address);
+    }
+
+    function getAudits() external view returns(AuditorReports.Reports memory) {
+        return audits;
     }
 
     /*
