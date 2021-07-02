@@ -22,14 +22,18 @@ contract PoolFactory {
     // Address to the sakedToken contractt 
     address private StkToken;
 
+
+    address private governence;
+
     /*
      * Minimum staked amount need to create a new NMLP
      */
     uint256 private minStakeAmount = 1000000000000000000000;
 
 
-    constructor (address stkToken) {
-        StkToken = stkToken;
+    constructor (address _stkToken, address _goverence) {
+        StkToken = _stkToken;
+        governence = _goverence;
     }
 
     /*
@@ -41,7 +45,7 @@ contract PoolFactory {
         uint256 stakedBalance = IERC20(StkToken).balanceOf(msg.sender);
         require(stakedBalance >= minStakeAmount, "Insufficient staked balance to create pool");
 
-        Pool pool = new Pool(name, admins);
+        Pool pool = new Pool(name, governence, admins);
         pools.push(pool);
         return pool;
     }

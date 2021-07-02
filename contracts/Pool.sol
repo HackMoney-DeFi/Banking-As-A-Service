@@ -3,12 +3,16 @@
 pragma solidity ^0.8.0;
 
 import "./IPool.sol";
+import "./library/audit.sol";
+    
 
+import "hardhat/console.sol";
 /*
  * Pool contract which acts as a reserve for liquidity and can be used for lending, borrowing,
  * investing and other financial operations.
  */
 contract Pool is IPool {
+
 
     /*
      * Total amount of liquidity that currently exists in the Pool
@@ -26,9 +30,23 @@ contract Pool is IPool {
     mapping(address => bool) public admins;
 
     /*
+     * List of audit reports
+     */
+
+    AuditorReports.Reports internal audits;
+
+    address private governer;
+    
+
+    /*
      * Map to keep track of how much a user has deposited to and withdrawn from the Pool
      */
     mapping(address => uint256) userBalance;
+    
+    modifier onlyGoverner {
+        require(msg.sender == governer, "Only Governence allowed operation");
+        _;
+    }
 
     modifier requireUserIsAdmin(address _address) {
         require(admins[_address] == true,
@@ -37,16 +55,29 @@ contract Pool is IPool {
     }
 
     event AddedAdmin(address _address);
-
+    
     event RemovedAdmin(address _adddress);
+    
+    event AddedAuditReport(AuditorReports.Audit _audit);
 
-    constructor (string memory _name, address[] memory _admins) {
+    constructor (
+        string memory _name,
+        address _governer,
+        address[] memory _admins
+        ){
+
         name = _name;
-
+        governer = _governer;
+        
         // Deep copy
         for (uint i = 0; i < _admins.length; i++) {
             admins[_admins[i]] = true;
         }
+    }
+
+    function AddAuditReport(AuditorReports.Audit memory _audit) external onlyGoverner {
+        audits.HistoricalAudits.push(_audit);
+        emit AddedAuditReport(_audit);
     }
 
     function deposit(uint256 _amount) external override {
@@ -65,6 +96,10 @@ contract Pool is IPool {
     function removeAdmin(address _address) external override requireUserIsAdmin(msg.sender) {
         delete admins[_address];
         emit RemovedAdmin(_address);
+    }
+
+    function getAudits() external view returns(AuditorReports.Reports memory) {
+        return audits;
     }
 
     function transfer(address to, address from, uint256 _amount) public override {

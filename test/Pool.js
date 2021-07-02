@@ -7,12 +7,16 @@ describe("Pool contract", function () {
 
   beforeEach(async function () {
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
-    [admin, nonAdmin] = await ethers.getSigners();
+    [admin, nonAdmin, alice, governence] = await ethers.getSigners();
+
+
+    auditLibraryFactory = await ethers.getContractFactory("AuditorReports")
+    auditLibrary = await auditLibraryFactory.deploy()
+    await auditLibrary.deployed();
 
     libFactory = await ethers.getContractFactory("LibToken");
     LibToken = await libFactory.deploy("LibToken", "Lib");
     await LibToken.deployed();
-
 
     skLibFactorty = await ethers.getContractFactory("StkLibToken")
     skLibToken = await skLibFactorty.deploy(LibToken.address, "stkLib Token",  "stkLib")
@@ -20,7 +24,7 @@ describe("Pool contract", function () {
 
 
 
-    poolFactoryToken = await poolFactoryContract.deploy(skLibToken.address);
+    poolFactoryToken = await poolFactoryContract.deploy(skLibToken.address, governence.address);
     await poolFactoryToken.deployed();
   });
   
@@ -58,5 +62,28 @@ describe("Pool contract", function () {
 
       // TODO: A non-admin trying to manipulate the admin list should throw an error
     });
+
+    it ("Add audit report", async function() {
+
+        await StkToken(ethers.BigNumber.from("1000000000000000000000000000"))
+        //create a pool and an instance of the contract
+        await poolFactoryToken.createPool("TestPool1", [admin.address]);
+        const poolAddress = (await poolFactoryToken.listPools())[0];
+        const poolContract = await ethers.getContractFactory("Pool");
+        const poolContractInstance = await poolContract.attach(poolAddress);
+
+        const audit = {"auditors": [], "fullAuditReport": alice.address}
+
+        // user not a governer
+        await expect( poolContractInstance.AddAuditReport(audit)).to.be.revertedWith("Only Governence allowed operation")
+        
+
+        // User is governer
+        await expect( poolContractInstance.connect(governence).AddAuditReport(audit)).to.not.be.reverted
+
+        auditReport = await poolContractInstance.getAudits()
+        expect(auditReport.HistoricalAudits.length).to.equal(1)
+    })
+
   });
 });
