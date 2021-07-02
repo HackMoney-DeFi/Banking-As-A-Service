@@ -68,8 +68,8 @@ describe("PoolFactory contract", function () {
 
     // Assert the expected values
     expect(await poolContractInstance.name()).to.equal(poolName);
-    expect(await poolContractInstance.admins(admins[0])).to.equal(true);
-    expect(await poolContractInstance.admins(admins[1])).to.equal(true);
+    expect(await poolContractInstance.isAdmin(admins[0])).to.equal(true);
+    expect(await poolContractInstance.isAdmin(admins[1])).to.equal(true);
   });
 
 

@@ -15,7 +15,7 @@ task("faucet", "Sends ETH and tokens to an address")
     }
 
     const addressesFile =
-      __dirname + "/../real-frontend/src/contracts/contract-address.json";
+      __dirname + "/../frontend/src/contracts/contract-address.json";
 
     if (!fs.existsSync(addressesFile)) {
       console.error("You need to deploy your contract first");
@@ -30,11 +30,11 @@ task("faucet", "Sends ETH and tokens to an address")
       return;
     }
 
-    const token = await ethers.getContractAt("PoolFactory", address.PoolFactory);
+    const token = await ethers.getContractAt("LibToken", address.LibToken);
     const [sender] = await ethers.getSigners();
 
-    // const tx = await token.transfer(receiver, 100);
-    // await tx.wait();
+    const tx = await token.transfer(receiver, 100);
+    await tx.wait();
 
     console.log(ethers.constants.WeiPerEther);
     const tx2 = await sender.sendTransaction({
