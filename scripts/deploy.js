@@ -11,39 +11,53 @@ async function main() {
   }
 
   // ethers is avaialble in the global scope
-  const [deployer] = await ethers.getSigners();
+  const [deployer, governance] = await ethers.getSigners();
   console.log(
     "Deploying the contracts with the account:",
     await deployer.getAddress()
   );
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
-
-  const PoolFactory = await ethers.getContractFactory("PoolFactory");
-  const poolFactory = await PoolFactory.deploy();
-  await poolFactory.deployed();
-
-  [address1, admin1, admin2, admin3, admin4, admin5] = await ethers.getSigners();
-  console.log(admin1.address, admin2.address);
-  await poolFactory.createPool("Ethiopian Farmers", [admin1.address, admin2.address]);
-  await poolFactory.createPool("BitCoin Birr Donation", [admin3.address, admin4.address]);
-  await poolFactory.createPool("Accra Credit Union", [admin4.address, admin5.address]);
-
-  const poolAddress = (await poolFactory.listPools());
-  console.log("Pools :", poolAddress)
+  auditLibraryFactory = await ethers.getContractFactory("AuditorReports")
+  auditLibrary = await auditLibraryFactory.deploy()
+  await auditLibrary.deployed();
 
 
-  //add sample pools
+  libFactory = await ethers.getContractFactory("LibToken");
+  LibToken = await libFactory.deploy("LibToken", "Lib");
+  await LibToken.deployed();
 
-  console.log("PoolFactory address:", poolFactory.address);
 
-  // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(poolFactory);
+  skLibFactorty = await ethers.getContractFactory("StkLibToken")
+  skLibToken = await skLibFactorty.deploy(LibToken.address, "stkLib Token",  "stkLib")
+  await skLibToken.deployed();
+
+  poolFactoryContract = await ethers.getContractFactory("PoolFactory");
+  poolFactoryInstance = await poolFactoryContract.deploy(skLibToken.address, governance.address);
+
+  await poolFactoryInstance.deployed();
+
+  
+
+  //prepopulate pools
+  [admin, nonAdmin, nonAdmin1] = await ethers.getSigners();
+
+
+  amount = await ethers.BigNumber.from("1000000000000000000000000000");
+  await LibToken.mint(admin.address, amount) 
+  await LibToken.approve(skLibToken.address, amount)
+  await skLibToken.stake(amount)
+
+  await poolFactoryInstance.createPool("Ethiopian Farmers", [admin.address, nonAdmin1.address]);
+  await poolFactoryInstance.createPool("BitCoin Birr Donation", [admin.address, nonAdmin.address]);
+
+
+  saveFrontendFiles(poolFactoryInstance, LibToken, skLibToken);
 }
 
-function saveFrontendFiles(poolFactory) {
+function saveFrontendFiles(poolFactory, libToken, skLibToken) {
   const fs = require("fs");
-  const contractsDir = __dirname + "/../real-frontend/src/contracts";
+  const contractsDir = __dirname + "/../frontend/src/contracts";
 
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir);
@@ -51,7 +65,11 @@ function saveFrontendFiles(poolFactory) {
 
   fs.writeFileSync(
     contractsDir + "/contract-address.json",
-    JSON.stringify({ PoolFactory: poolFactory.address }, undefined, 2)
+    JSON.stringify({ PoolFactory: poolFactory.address,
+                     libToken: libToken.address,
+                     skLibToken: skLibToken.address,
+
+                   }, undefined, 2)
   );
 
   const PoolFactoryArtifact = artifacts.readArtifactSync("PoolFactory");
@@ -60,6 +78,29 @@ function saveFrontendFiles(poolFactory) {
     contractsDir + "/PoolFactory.json",
     JSON.stringify(PoolFactoryArtifact, null, 2)
   );
+
+  const PoolArtifact = artifacts.readArtifactSync("Pool");
+
+  fs.writeFileSync(
+    contractsDir + "/Pool.json",
+    JSON.stringify(PoolArtifact, null, 2)
+  );
+
+  const LibTokenArtifact = artifacts.readArtifactSync("LibToken");
+  
+
+  fs.writeFileSync(
+    contractsDir + "/LibToken.json",
+    JSON.stringify(LibTokenArtifact, null, 2)
+  );
+
+  const STkLibTokenArtifact = artifacts.readArtifactSync("StkLibToken");  
+  fs.writeFileSync(
+    contractsDir + "/StkLibToken.json",
+    JSON.stringify(STkLibTokenArtifact, null, 2)
+  );
+
+
 }
 
 main()

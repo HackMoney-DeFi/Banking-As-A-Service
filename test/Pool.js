@@ -7,7 +7,7 @@ describe("Pool contract", function () {
 
   beforeEach(async function () {
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
-    [admin, nonAdmin, alice, governence] = await ethers.getSigners();
+    [admin, nonAdmin, nonAdmin1, alice, governence] = await ethers.getSigners();
 
 
     auditLibraryFactory = await ethers.getContractFactory("AuditorReports")
@@ -52,13 +52,19 @@ describe("Pool contract", function () {
       const poolContractInstance = await poolContract.attach(poolAddress);
 
       // Sanity check then proceed to adding the user as an admin
-      expect(await poolContractInstance.admins(nonAdmin.address)).to.equal(false);
+      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(false);
+      
       const msgSender = await poolContractInstance.addAdmin(nonAdmin.address);
-      expect(await poolContractInstance.admins(nonAdmin.address)).to.equal(true);
+      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(true);
 
-      // Remove the user from the admins list
+      // add extra admin to test count
+      await poolContractInstance.addAdmin(nonAdmin1.address);
+      expect(await poolContractInstance.totalAdmins()).to.equal(3);
+
+      // Remove the user from the isAdmin list
       await poolContractInstance.removeAdmin(nonAdmin.address);
-      expect(await poolContractInstance.admins(nonAdmin.address)).to.equal(false);
+      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(false);
+      expect(await poolContractInstance.totalAdmins()).to.equal(2);
 
       // TODO: A non-admin trying to manipulate the admin list should throw an error
     });
