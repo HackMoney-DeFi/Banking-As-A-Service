@@ -9,7 +9,7 @@ describe("PoolFactory contract", function () {
     [alice, bob, governence] = await ethers.getSigners();
 
     libFactory = await ethers.getContractFactory("LibToken");
-    LibToken = await libFactory.deploy("LibToken", "Lib");
+    LibToken = await libFactory.deploy(alice.address);
     await LibToken.deployed();
 
 
