@@ -42,6 +42,16 @@ contract Pool is IPool, ReentrancyGuard {
 
     address private governer;
 
+    /*
+     * Address of the USDC contract
+     */
+    address private constant USDC_ADDRESS = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+
+    /*
+     * Reference to the KoloToken contract
+     */
+    KoloToken private kToken;
+
     modifier onlyGoverner {
         require(msg.sender == governer, "Only Governence allowed operation");
         _;
@@ -64,45 +74,46 @@ contract Pool is IPool, ReentrancyGuard {
     
     event AddedAuditReport(AuditorReports.Audit _audit);
 
-    event DepositedUSDC(address _address, uint256 usdcAmount);
+    event Deposited(address _address, uint256 usdcAmount);
 
-    event WithdrewKOLO(address _address, uint256 kTokenAmount);
+    event Withdrew(address _address, uint256 kTokenAmount);
 
     constructor (
         string memory _name,
         address _governer,
-        address[] memory _admins) {
+        address[] memory _admins,
+        KoloToken _kToken) {
         name = _name;
         governer = _governer;
+        kToken = _kToken;
+        kToken.setAdminRole(address(this));
 
         // Deep copy
         for (uint i = 0; i < _admins.length; i++) {
-            isAdmin[_admins[i]] = true;
-            totalAdmins += 1;
+            if (!isAdmin[_admins[i]])
+                isAdmin[_admins[i]] = true;
+                totalAdmins += 1;
         }
     }
 
     /*
      * @dev deposits The underlying asset (currently USDC) into the reserve. A corresponding amount
      * of the overlying asset (KOLOs) is minted.
-     * @param usdcAddress address of the usdcToken contract
-     * @param kTokenAddress address of the KoloToken contract
-     * @param usdcAmount the amount to be deposited
+     * @param amount amount of underlying asset to be deposited to the pool
      */
-    function depositUSDC(address usdcAddress, address kTokenAddress, uint256 usdcAmount) external
-        nonReentrant
-        requireDepositOrWithdrawMoreThanZero(usdcAmount)
+    function deposit(uint256 amount) external nonReentrant
+        requireDepositOrWithdrawMoreThanZero(amount)
         override {
 
         // Approve & transfer transaction.
         require(
-            doUSDCTransfer(usdcAddress, kTokenAddress, msg.sender, address(this), usdcAmount),
+            transfer(msg.sender, address(this), amount),
                 "Deposit not successful.");
-        DepositedUSDC(msg.sender, usdcAmount);
-        totalReserveBalance += usdcAmount;
+        emit Deposited(msg.sender, amount);
+        totalReserveBalance += amount;
 
         // Mint equivalent KOLO
-        KoloToken(kTokenAddress).mint(msg.sender, usdcAmount);
+        kToken.mintKOLO(msg.sender, amount);
     }
     
     function AddAuditReport(AuditorReports.Audit memory _audit) external onlyGoverner {
@@ -111,28 +122,24 @@ contract Pool is IPool, ReentrancyGuard {
     }
 
     /*
-     * @dev Converts KOLO to USDC and transfers respective amounts to addresses
-     * @param usdcAddress address of the usdcToken contract
-     * @param kTokenAddress address of the KoloToken contract
-     * @param kTokenAmount the amount to be withdrawn
+     * @dev Withdraws USDC by converting it from KOLO
+     * @param amount the amount of KOLO to be withdrawn
      */
-    function withdrawInKoloToken(address usdcAddress, address kTokenAddress, uint256 kTokenAmount)
-        external
-        nonReentrant
-        requireDepositOrWithdrawMoreThanZero(kTokenAmount)
+    function withdraw(uint256 amount) external nonReentrant
+        requireDepositOrWithdrawMoreThanZero(amount)
         override {
 
         // Validate transaction
-        uint256 usdcAmount = convertKOLOToUSDC(kTokenAmount);
+        uint256 usdcAmount = convertKOLOToUSDC(amount);
         validateAmountBelowLiquidityThreshold(usdcAmount);
         require(
-            doUSDCTransfer(usdcAddress, kTokenAddress, address(this), msg.sender, usdcAmount),
+            transfer(address(this), msg.sender, usdcAmount),
             "Withdrawal not successful.");
-        WithdrewKOLO(msg.sender, kTokenAmount);
+        emit Withdrew(msg.sender, amount);
         totalReserveBalance -= usdcAmount;
 
         // Burn KOLO
-        KoloToken(kTokenAddress).burn(msg.sender, kTokenAmount);
+        kToken.burnKOLO(msg.sender, amount);
     }
 
     function addAdmin(address _address) external override requireUserIsAdmin(msg.sender) {
@@ -154,23 +161,18 @@ contract Pool is IPool, ReentrancyGuard {
     }
 
     /*
-     * @dev Transfers USDC tokens from KOLO balance
-     * @param usdcAddress address of the USDC token contract
-     * @param kTokenAddress address of the KOLO token contract
+     * @dev Transfers USDC from one address to another
      * @param from sender address
      * @param to recipient address
-     * @amount amount to be transfered
+     * @amount amount to be transferred
      */
-    function doUSDCTransfer(
-        address usdcAddress,
-        address kTokenAddress,
+    function transfer(
         address from,
         address to,
         uint256 amount
     ) internal override returns (bool) {
         require(to != address(0), "Can't send to zero address.");
-        IERC20 USDC = IERC20(usdcAddress);
-        USDC.approve(kTokenAddress, amount);
+        IERC20 USDC = IERC20(USDC_ADDRESS);
         return USDC.transferFrom(from, to, amount);
     }
 

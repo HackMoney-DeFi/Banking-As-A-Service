@@ -39,7 +39,8 @@ contract PoolFactory {
         uint256 stakedBalance = IERC20(StkToken).balanceOf(msg.sender);
         require(stakedBalance >= minStakeAmount, "Insufficient staked balance to create pool");
 
-        Pool pool = new Pool(name, governence, admins);
+        KoloToken kToken = new KoloToken();
+        Pool pool = new Pool(name, governence, admins, kToken);
         pools.push(pool);
         return pool;
     }
