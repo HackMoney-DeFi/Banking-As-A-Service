@@ -25,12 +25,12 @@ contract KoloToken is ERC20PresetMinterPauser {
     }
 
     function mintKOLO(address from, uint256 amount) external {
-        require(hasRole(ADMIN_ROLE, from), "Must have ADMIN role to burn.");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Must have ADMIN role to mint.");
         _mint(from, amount);
     }
 
     function burnKOLO(address from, uint256 amount) external {
-        require(hasRole(ADMIN_ROLE, from), "Must have ADMIN role to burn.");
+        require(hasRole(ADMIN_ROLE, msg.sender), "Must have ADMIN role to burn.");
         burnFrom(from, amount);
     }
 }

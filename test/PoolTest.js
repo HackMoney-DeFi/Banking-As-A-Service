@@ -86,19 +86,5 @@ describe("Pool contract", function () {
         auditReport = await poolContractInstance.getAudits()
         expect(auditReport.HistoricalAudits.length).to.equal(1)
     });
-
-    it ("Transfer funds", async function() {
-
-      await StkToken(ethers.BigNumber.from("1000000000000000000000000000"))
-      //create a pool and an instance of the contract
-      await poolFactoryToken.createPool("TestPool1", [admin.address]);
-      const poolAddress = (await poolFactoryToken.listPools())[0];
-      const poolContract = await ethers.getContractFactory("Pool");
-      const poolContractInstance = await poolContract.attach(poolAddress);
-
-      // TODO add test scenarios
-    });
-
-
   });
 });
