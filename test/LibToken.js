@@ -13,7 +13,7 @@ describe("LibToken contract", function () {
     LibToken = await ethers.getContractFactory("LibToken");
     [owner] = await ethers.getSigners();
 
-    LibToken = await LibToken.deploy("LibToken", "LIB");
+    LibToken = await LibToken.deploy(owner.address);
     await LibToken.deployed();
     
     await LibToken.deployed();
@@ -23,7 +23,7 @@ describe("LibToken contract", function () {
       
     it("Has the right initialization", async function () {
       expect(await LibToken.symbol()).to.equal("LIB");
-      expect(await LibToken.name()).to.equal("LibToken")
+      expect(await LibToken.name()).to.equal("LibertyToken")
     });
 
     it("Owner can mint", async function () {

@@ -14,7 +14,7 @@ describe("stkToken contract", function () {
     [alice, bob] = await ethers.getSigners();
 
     libFactory = await ethers.getContractFactory("LibToken");
-    LibToken = await libFactory.deploy("LibToken", "Lib");
+    LibToken = await libFactory.deploy(alice.address);
     await LibToken.deployed();
 
 
@@ -27,8 +27,8 @@ describe("stkToken contract", function () {
   describe("Deployment", function () {
       
     it("Has the right initialization", async function () {
-      expect(await LibToken.symbol()).to.equal("Lib");
-      expect(await LibToken.name()).to.equal("LibToken")
+      expect(await LibToken.symbol()).to.equal("LIB");
+      expect(await LibToken.name()).to.equal("LibertyToken")
 
       expect(await skLibToken.name()).to.equal("stkLib Token")
     });

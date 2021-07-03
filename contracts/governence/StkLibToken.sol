@@ -5,9 +5,11 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
+import "./VoteToken.sol";
+
 import "hardhat/console.sol";
 
-contract StkLibToken is ERC20, ReentrancyGuard{
+contract StkLibToken is VoteToken, ReentrancyGuard {
 
     // Address of LibToken contract
     address public LibToken;
@@ -23,6 +25,15 @@ contract StkLibToken is ERC20, ReentrancyGuard{
     ) ERC20(name, symbol) {
         LibToken = libToken;
 
+    }
+
+    function _transfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal override {
+        require(_to != address(this), "stkLibToken: Can't transfer to the Lib contract itself");
+        super._transfer(_from, _to, _amount);
     }
 
     function stake(uint256 amount) external nonReentrant {

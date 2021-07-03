@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./IPool.sol";
+import "./interfaces/IPool.sol";
 import "./library/audit.sol";
     
 
