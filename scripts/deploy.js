@@ -24,7 +24,7 @@ async function main() {
 
 
   libFactory = await ethers.getContractFactory("LibToken");
-  LibToken = await libFactory.deploy("LibToken", "Lib");
+  LibToken = await libFactory.deploy(deployer.address);
   await LibToken.deployed();
 
 
@@ -50,6 +50,10 @@ async function main() {
 
   await poolFactoryInstance.createPool("Ethiopian Farmers", [admin.address, nonAdmin1.address]);
   await poolFactoryInstance.createPool("BitCoin Birr Donation", [admin.address, nonAdmin.address]);
+
+
+  pools = await poolFactoryInstance.listPools();
+  console.log("hello", pools)
 
 
   saveFrontendFiles(poolFactoryInstance, LibToken, skLibToken);
