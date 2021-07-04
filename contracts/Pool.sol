@@ -7,13 +7,14 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./KoloToken.sol";
 import "./interfaces/IPool.sol";
 import "./library/audit.sol";
+import "./MultiSigWallet.sol";
 import "hardhat/console.sol";
 
 /*
  * Pool contract which acts as a reserve for liquidity and can be used for lending, borrowing,
  * investing and other financial operations.
  */
-contract Pool is IPool, ReentrancyGuard {
+contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
 
     /*
      * Total amount of liquidity that currently exists in the Pool
@@ -24,16 +25,6 @@ contract Pool is IPool, ReentrancyGuard {
      * Name of the Pool
      */
     string public name;
-
-    /*
-     * Map to keep track of users who have special roles such as managing funds and voting on loan requests
-     */
-    mapping(address => bool) public isAdmin;
-
-    /*
-     * Total number of admins in the Pool
-     */
-    uint256 public totalAdmins = uint256(0);
 
     /*
      * List of audit reports
@@ -56,12 +47,6 @@ contract Pool is IPool, ReentrancyGuard {
         require(msg.sender == governer, "Only Governence allowed operation");
         _;
     }
-    
-    modifier requireUserIsAdmin(address _address) {
-        require(isAdmin[_address] == true,
-            "User is not authorized to perform operation because they are not an Admin.");
-        _;
-    }
 
     modifier requireDepositOrWithdrawMoreThanZero(uint256 _amount) {
         require(_amount > 0, "Must deposit or withdraw more than zero.");
@@ -82,18 +67,13 @@ contract Pool is IPool, ReentrancyGuard {
         string memory _name,
         address _governer,
         address[] memory _admins,
-        KoloToken _kToken) {
+        KoloToken _kToken
+        ) MultiSigWallet(_admins, 2) {
+
         name = _name;
         governer = _governer;
         kToken = _kToken;
         kToken.setAdminRole(address(this));
-
-        // Deep copy
-        for (uint i = 0; i < _admins.length; i++) {
-            if (!isAdmin[_admins[i]])
-                isAdmin[_admins[i]] = true;
-                totalAdmins += 1;
-        }
     }
 
     /*
@@ -140,20 +120,6 @@ contract Pool is IPool, ReentrancyGuard {
 
         // Burn KOLO
         kToken.burnKOLO(msg.sender, amount);
-    }
-
-    function addAdmin(address _address) external override requireUserIsAdmin(msg.sender) {
-        if (!isAdmin[_address])
-            isAdmin[_address] = true;
-            totalAdmins += 1;
-            emit AddedAdmin(_address);
-    }
-
-    function removeAdmin(address _address) external override requireUserIsAdmin(msg.sender) {
-        if (isAdmin[_address])
-            delete isAdmin[_address];
-            totalAdmins -= 1;
-            emit RemovedAdmin(_address);
     }
 
     function getAudits() external view returns(AuditorReports.Reports memory) {
