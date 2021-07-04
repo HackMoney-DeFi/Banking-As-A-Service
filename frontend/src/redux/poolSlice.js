@@ -7,6 +7,7 @@ import PoolFactoryArtifact from '../contracts/PoolFactory.json';
 import PoolArtifact from '../contracts/Pool.json';
 import contractAddress from '../contracts/contract-address.json';
 import { createSlice } from '@reduxjs/toolkit';
+import { closeSidePanel } from './viewSlice';
 
 // // Define a thunk that dispatches those action creators
 //  const fetchUsers = () => async (dispatch) => {
@@ -18,7 +19,7 @@ import { createSlice } from '@reduxjs/toolkit';
   // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
 // to use when deploying to other networks.
-const HARDHAT_NETWORK_ID = '31337';
+const HARDHAT_NETWORK_ID = '1337';
 
 const initialState = {
     status: 'idle',
@@ -46,8 +47,8 @@ const dappSlice = createSlice({
       setUserAddress(state, action) {
           state.selectedAddress = action.payload;
       },
-      setToken(state,action) {
-          state.token = action.payload;
+      setPoolFactory(state,action) {
+          state.poolFactory = action.payload;
       },
       setProvider(state,action) {
         state.provider = action.payload;
@@ -69,12 +70,12 @@ const dappSlice = createSlice({
   })
   
   export const { actions: { 
-      walletLoading, setToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
+      walletLoading, setPoolFactory, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
     dispatch(_initializeEthers());
-    dispatch(createDefaultPools());
+    // dispatch(createDefaultPools());
     dispatch(getPoolsList());
   };
 
@@ -89,18 +90,20 @@ const dappSlice = createSlice({
       provider.getSigner(0)
     );
 
-    dispatch(setToken(token));
+    dispatch(setPoolFactory(token));
   };
 
   export const createDefaultPools = () => async (dispatch, getState) => {
-    // await getState().pool.token.createPool("Ethiopian Farmers", ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8']);
-    // await getState().pool.token.createPool("BitCoin Birr Donation", ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']);
-    // await getState().pool.token.createPool("Accra Credit Union", ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']);
+    await getState().pool.poolFactory.createPool("SomePool", ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8']);
+    await getState().pool.poolFactory.createPool("Another Pool", ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']);
+    await getState().pool.poolFactory.createPool("WAP", ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']);
   }
 
   export const createPool = (poolName, admins) => async (dispatch, getState) => {
-    console.log('creating pool ', poolName, ' with admins ', admins);
-    await getState().pool.token.createPool(poolName, [...admins]);
+    const newPool = await getState().pool.poolFactory.createPool(poolName, [...admins]);
+    console.log({ newPool });
+    dispatch(getPoolsList());
+    dispatch(closeSidePanel());
  }
 
   const getPoolsList = () => async (dispatch, getState) => {
@@ -111,11 +114,10 @@ const dappSlice = createSlice({
     //To access pool metadata
     // poolMap['xerandomadress'].name()
     // poolMap['xerandomadress'].isAdmin(address)
-    const poolMap = new Map()
-
+    const poolMap = {};
     
     //list pool addresses first
-    const poolAddresses = await getState().pool.token.listPools();
+    const poolAddresses = await getState().pool.poolFactory.listPools();
     for (var i = 0; i < poolAddresses.length; i++) {
       let poolGen = await new ethers.ContractFactory(
         PoolArtifact.abi,
@@ -124,13 +126,24 @@ const dappSlice = createSlice({
       );
 
       let pool = await poolGen.attach(poolAddresses[i]);
+
+<<<<<<< HEAD
+=======
+      const poolName = await pool.name();
+      const totalAdmins = await pool.totalAdmins();
+      const isAdmin = await pool.isAdmin(selectedAddress);
+      pool.poolName = poolName;
+      pool.totalPoolAdmins = totalAdmins.toNumber();
+      pool.isUserAdmin = isAdmin;
+
       poolMap[poolAddresses[i]] = pool;     
-
+>>>>>>> ad59e39... pool slice updates
     }
-
+      dispatch(setPoolMap(poolMap));
   }
 
   const _checkNetwork = () => async (dispatch) => {
+    console.log(window.ethereum.networkVersion);
     if (window.ethereum.networkVersion === HARDHAT_NETWORK_ID) {
       return true;
     }

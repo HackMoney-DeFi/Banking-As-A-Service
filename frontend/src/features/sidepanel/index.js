@@ -5,12 +5,14 @@ import SlidingPanel from 'react-sliding-side-panel';
 import PoolDetails from '../pool/detail/PoolDetails';
 import WidthdrawalRequestForm from '../transactions/WithdrawalRequestForm';
 import DepositForm from '../transactions/DepositRequestForm';
+import StakeForm from '../transactions/StakeForm';
 
 const sidePanelContents = {
   createPool: CreatePool,
   details: PoolDetails,
   withdraw: WidthdrawalRequestForm,
-  deposit: DepositForm
+  deposit: DepositForm,
+  stake: StakeForm
 };
 
 function SidePanel() {
