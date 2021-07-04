@@ -10,18 +10,7 @@ const options = userAddress => [
 
 const AdminsSelect = ({ userAddress, setAdmins }) => {
   const handleChange = (newValue, actionMeta) => {
-    console.group("Value Changed");
-    console.log(newValue);
-    console.log(`action: ${actionMeta.action}`);
-    console.groupEnd();
     setAdmins(newValue.map(v => v.value));
-  };
-
-  const handleInputChange = (inputValue, actionMeta) => {
-    console.group("Input Changed");
-    console.log(inputValue);
-    console.log(`action: ${actionMeta.action}`);
-    console.groupEnd();
   };
 
   return (
@@ -29,9 +18,8 @@ const AdminsSelect = ({ userAddress, setAdmins }) => {
       isClearable
       isMulti
       onChange={handleChange}
-      onInputChange={handleInputChange}
       options={options(userAddress)}
-      placeholder="Enter each address here"
+      placeholder="Enter at least 3 admins"
     />
   );
 };
@@ -48,6 +36,7 @@ const CreatePool = () => {
 
   const handleSubmit = () => {
     dispatch(createPool(poolName, admins));
+    dispatch(closeSidePanel());
   };
 
   return (
@@ -68,8 +57,12 @@ const CreatePool = () => {
         <label className="mr-1" for="admins">Admins</label>
         <AdminsSelect id="admins" setAdmins={setAdmins} userAddress={userAddress} />
       </form>
-      <button className="btn btn-accent" onClick={handleSubmit}>Submit</button>
-      <button className="btn btn-accent mt-1" onClick={handleClose}>Close</button>
+      {
+        poolName && admins && admins?.length > 2 && (
+          <button type="button" className="btn btn-accent" onClick={handleSubmit}>Submit</button>
+        )
+      }
+      <button type="button" className="btn btn-danger mt-1" onClick={handleClose}>Close</button>
     </div>
   );
 };

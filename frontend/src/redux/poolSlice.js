@@ -45,11 +45,17 @@ const dappSlice = createSlice({
       setPoolMap(state, action) {
         state.poolMap = action.payload;
       },
+      setStakingStatus(state, action) {
+        state.stakeStatus = action.payload;
+      },
       setUserAddress(state, action) {
           state.selectedAddress = action.payload;
       },
       setToken(state,action) {
           state.token = action.payload;
+      },
+      setStakedAmt(state,action) {
+        state.stakedAmt = action.payload;
       },
       setLibToken(state, action ) {
           state.libToken = action.payload;
@@ -77,15 +83,21 @@ const dappSlice = createSlice({
   })
   
   export const { actions: { 
-      walletLoading, setToken, setLibToken, setskLibToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
+      walletLoading, setToken, setStakedAmt, setLibToken, setStakingStatus, setskLibToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
     await dispatch(_initializeEthers());
 
-    await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
-    await dispatch(createDefaultPools());
+    // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
+    // await dispatch(createDefaultPools());
     await dispatch(getPoolsList());
+    await dispatch(getStakedAmount());
+  };
+
+  const getStakedAmount = () => async (dispatch, getState) => {
+    const stakedAmt = await getState().pool.libToken.totalSupply();
+    dispatch(setStakedAmt(stakedAmt));
   };
   
 
@@ -121,16 +133,24 @@ const dappSlice = createSlice({
 
   }
 
-  const stakeLibTokens = (amount) => async (dispatch, getState) => {
-    await console.log("Attempting to stake ", amount)
-    // initialize approval before actual staking
-    await getState().pool.libToken.approve(contractAddress.skLibToken, amount);
-    const tx = await getState().pool.skLibToken.stake(amount);
+  export const stakeLibTokens = (amount) => async (dispatch, getState) => {
+    dispatch(setStakingStatus('loading'));
+    try {
+      await console.log("Attempting to stake ", amount)
+      // initialize approval before actual staking
+      await getState().pool.libToken.approve(contractAddress.skLibToken, amount*1000);
+      const tx = await getState().pool.skLibToken.stake(amount);
+      dispatch(setStakingStatus('success'));
+      dispatch(getStakedAmount());
+    } catch (e) {
+      dispatch(setStakingStatus('error'));
+    }
   }
 
   export const createPool = (poolName, admins) => async (dispatch, getState) => {
     console.log('creating pool ', poolName, ' with admins ', admins);
     await getState().pool.token.createPool(poolName, [...admins]);
+    dispatch(getPoolsList());
  }
 
   const getPoolsList = () => async (dispatch, getState) => {
@@ -142,9 +162,7 @@ const dappSlice = createSlice({
     //To access pool metadata
     // poolMap['xerandomadress'].name()
     // poolMap['xerandomadress'].isAdmin(address)
-    const poolMap = new Map()
-
-    
+    const poolMap = {};
     //list pool addresses first
     
     const poolAddresses = await getState().pool.token.listPools();
@@ -156,13 +174,21 @@ const dappSlice = createSlice({
       );
 
       let pool = await poolGen.attach(poolAddresses[i]);
+
+      const poolName = await pool.name();
+      const isAdmin = await pool.isOwner(selectedAddress);
+      const owners = await pool.getOwners();
+      const totalLiquidity = await pool.getTotalReserveBalance()
+      pool.poolName = poolName;
+      pool.isUserAdmin = isAdmin;
+      pool.totalLiquidity = totalLiquidity.toNumber();;
+      pool.owners = owners;
       poolMap[poolAddresses[i]] = pool;    
       
       // DONOT Remove. Place-holder for demonstration
-      await console.log("Pool ", i, " ",await pool.name());
-
+      await console.log(`${i} ${poolName} ${isAdmin} ${owners} ${totalLiquidity}`);
     }
-
+    dispatch(setPoolMap(poolMap));
   }
 
   const _checkNetwork = () => async (dispatch) => {
