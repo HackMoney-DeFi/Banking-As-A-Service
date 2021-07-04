@@ -126,11 +126,6 @@ const dappSlice = createSlice({
       let pool = await poolGen.attach(poolAddresses[i]);
       poolMap[poolAddresses[i]] = pool;     
 
-
-      //This is for demo purposes
-      await console.log(await pool.name());
-      await console.log(await pool.totalAdmins());
-      await console.log(pool.isAdmin);
     }
 
   }

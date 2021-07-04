@@ -7,7 +7,7 @@ describe("Pool contract", function () {
 
   beforeEach(async function () {
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
-    [admin, nonAdmin, nonAdmin1, alice, governence] = await ethers.getSigners();
+    [admin, admin2, admin3, nonAdmin, nonAdmin1, alice, governence] = await ethers.getSigners();
 
 
     auditLibraryFactory = await ethers.getContractFactory("AuditorReports")
@@ -23,7 +23,6 @@ describe("Pool contract", function () {
     await skLibToken.deployed();
 
 
-
     poolFactoryToken = await poolFactoryContract.deploy(skLibToken.address, governence.address);
     await poolFactoryToken.deployed();
   });
@@ -33,12 +32,12 @@ describe("Pool contract", function () {
 
     await LibToken.mint(admin.address, amount) 
     await LibToken.approve(skLibToken.address, amount)
-    expect(await LibToken.allowance(admin.address, skLibToken.address)).to.equal(amount)
+    // expect(await LibToken.allowance(admin.address, skLibToken.address)).to.equal(amount)
 
     // Stake LibToken
     await skLibToken.stake(amount)
-    expect(await skLibToken.balanceOf(admin.address)).to.equal(amount)
-    expect(await LibToken.balanceOf(admin.address)).to.equal(0)
+    // expect(await skLibToken.balanceOf(admin.address)).to.equal(amount)
+    // expect(await LibToken.balanceOf(admin.address)).to.equal(0)
   }
 
   
@@ -46,34 +45,32 @@ describe("Pool contract", function () {
     it("Admin should be able to add/remove users to/from the admin list", async function () {
       await StkToken(ethers.BigNumber.from("1000000000000000000000000000"))
       //create a pool and an instance of the contract
-      await poolFactoryToken.createPool("TestPool1", [admin.address]);
+      await poolFactoryToken.createPool("TestPool1", [admin.address, admin2.address, admin3.address]);
       const poolAddress = (await poolFactoryToken.listPools())[0];
       const poolContract = await ethers.getContractFactory("Pool");
       const poolContractInstance = await poolContract.attach(poolAddress);
 
-      // Sanity check then proceed to adding the user as an admin
-      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(false);
-      
-      const msgSender = await poolContractInstance.addAdmin(nonAdmin.address);
-      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(true);
+      // // Sanity check then proceed to adding the user as an admin
+      expect(await poolContractInstance.isOwner(nonAdmin.address)).to.equal(false);
 
-      // add extra admin to test count
-      await poolContractInstance.addAdmin(nonAdmin1.address);
-      expect(await poolContractInstance.totalAdmins()).to.equal(3);
 
-      // Remove the user from the isAdmin list
-      await poolContractInstance.removeAdmin(nonAdmin.address);
-      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(false);
-      expect(await poolContractInstance.totalAdmins()).to.equal(2);
+      //Add alice as admin
+     callData = poolContractInstance.interface.encodeFunctionData("addOwner(address)", [alice.address])
 
-      // TODO: A non-admin trying to manipulate the admin list should throw an error
+     transactionId = await poolContractInstance.submitTransaction(poolContractInstance.address, 0, callData)
+     await poolContractInstance.connect(admin2).confirmTransaction(0)
+
+
+     // Assert in face alice is an admin
+     expect(await poolContractInstance.isOwner(alice.address)).to.be.true
+
     });
 
     it ("Add audit report", async function() {
 
         await StkToken(ethers.BigNumber.from("1000000000000000000000000000"))
         //create a pool and an instance of the contract
-        await poolFactoryToken.createPool("TestPool1", [admin.address]);
+        await poolFactoryToken.createPool("TestPool1", [admin.address, admin2.address, admin3.address]);
         const poolAddress = (await poolFactoryToken.listPools())[0];
         const poolContract = await ethers.getContractFactory("Pool");
         const poolContractInstance = await poolContract.attach(poolAddress);
@@ -90,6 +87,5 @@ describe("Pool contract", function () {
         auditReport = await poolContractInstance.getAudits()
         expect(auditReport.HistoricalAudits.length).to.equal(1)
     })
-
-  });
+  })
 });
