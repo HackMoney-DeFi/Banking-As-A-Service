@@ -29,12 +29,22 @@ task("faucet", "Sends ETH and tokens to an address")
       console.error("You need to deploy your contract first");
       return;
     }
+    
 
-    const token = await ethers.getContractAt("LibToken", address.LibToken);
+  
+
+    const token = await ethers.getContractAt("LibToken", address.libToken);
     const [sender] = await ethers.getSigners();
 
-    const tx = await token.transfer(receiver, 100);
-    await tx.wait();
+    skLibFactorty = await ethers.getContractFactory("StkLibToken")
+    skLibToken = await skLibFactorty.deploy(token.address, "stkLib Token",  "stkLib")
+    await skLibToken.deployed();
+
+
+    //send some libTokens
+    await token.mint(receiver, ethers.BigNumber.from("9000000000000000000000000000") );
+    await token.approve(address.libToken, receiver);
+    await token.allowance(receiver, token.address)
 
     console.log(ethers.constants.WeiPerEther);
     const tx2 = await sender.sendTransaction({

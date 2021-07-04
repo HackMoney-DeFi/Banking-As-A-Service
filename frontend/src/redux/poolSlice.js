@@ -5,6 +5,8 @@ import { ethers } from "ethers";
 // using them with ethers
 import PoolFactoryArtifact from '../contracts/PoolFactory.json';
 import PoolArtifact from '../contracts/Pool.json';
+import LibTokenArtifact from '../contracts/LibToken.json';
+import skLibTokenArtifact from '../contracts/StkLibToken.json';
 import contractAddress from '../contracts/contract-address.json';
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -18,7 +20,7 @@ import { createSlice } from '@reduxjs/toolkit';
   // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
 // to use when deploying to other networks.
-const HARDHAT_NETWORK_ID = '31337';
+const HARDHAT_NETWORK_ID = '1337';
 
 const initialState = {
     status: 'idle',
@@ -49,6 +51,12 @@ const dappSlice = createSlice({
       setToken(state,action) {
           state.token = action.payload;
       },
+      setLibToken(state, action ) {
+          state.libToken = action.payload;
+      },
+      setskLibToken(state, action) {
+        state.skLibToken = action.payload;
+      },
       setProvider(state,action) {
         state.provider = action.payload;
       },
@@ -69,15 +77,17 @@ const dappSlice = createSlice({
   })
   
   export const { actions: { 
-      walletLoading, setToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
+      walletLoading, setToken, setLibToken, setskLibToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
-    dispatch(_initializeEthers());
-    dispatch(createDefaultPools());
-    dispatch(getPoolsList());
-  };
+    await dispatch(_initializeEthers());
 
+    await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
+    await dispatch(createDefaultPools());
+    await dispatch(getPoolsList());
+  };
+  
 
  const _initializeEthers = () => async (dispatch) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -89,13 +99,33 @@ const dappSlice = createSlice({
       provider.getSigner(0)
     );
 
-    dispatch(setToken(token));
+    const libToken = new ethers.Contract(
+      contractAddress.libToken,
+      LibTokenArtifact.abi,
+      provider.getSigner(0)
+    );
+
+    const skLibToken = new ethers.Contract(
+      contractAddress.skLibToken,
+      skLibTokenArtifact.abi,
+      provider.getSigner(0)
+    );
+
+    await dispatch(await setLibToken(libToken));
+    await dispatch(await setToken(token));
+    await dispatch(await setskLibToken(skLibToken));
   };
 
   export const createDefaultPools = () => async (dispatch, getState) => {
-    // await getState().pool.token.createPool("Ethiopian Farmers", ['0x70997970C51812dc3A010C7d01b50e0d17dc79C8']);
-    // await getState().pool.token.createPool("BitCoin Birr Donation", ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']);
-    // await getState().pool.token.createPool("Accra Credit Union", ['0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC']);
+     await getState().pool.token.createPool("Ethiopian Farmers B", ['0x2546BcD3c84621e976D8185a91A922aE77ECEc30', '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E', '0xdD2FD4581271e230360230F9337D5c0430Bf44C0']);
+
+  }
+
+  const stakeLibTokens = (amount) => async (dispatch, getState) => {
+    await console.log("Attempting to stake ", amount)
+    // initialize approval before actual staking
+    await getState().pool.libToken.approve(contractAddress.skLibToken, amount);
+    const tx = await getState().pool.skLibToken.stake(amount);
   }
 
   export const createPool = (poolName, admins) => async (dispatch, getState) => {
@@ -105,7 +135,8 @@ const dappSlice = createSlice({
 
   const getPoolsList = () => async (dispatch, getState) => {
     const selectedAddress = getState().pool.selectedAddress;
-    console.log({ selectedAddress });
+    await console.log("Your address ", selectedAddress);
+   
 
 
     //To access pool metadata
@@ -115,6 +146,7 @@ const dappSlice = createSlice({
 
     
     //list pool addresses first
+    
     const poolAddresses = await getState().pool.token.listPools();
     for (var i = 0; i < poolAddresses.length; i++) {
       let poolGen = await new ethers.ContractFactory(
@@ -124,13 +156,17 @@ const dappSlice = createSlice({
       );
 
       let pool = await poolGen.attach(poolAddresses[i]);
-      poolMap[poolAddresses[i]] = pool;     
+      poolMap[poolAddresses[i]] = pool;    
+      
+      // DONOT Remove. Place-holder for demonstration
+      await console.log("Pool ", i, " ",await pool.name());
 
     }
 
   }
 
   const _checkNetwork = () => async (dispatch) => {
+    console.log("Hardhat net ID ",HARDHAT_NETWORK_ID);
     if (window.ethereum.networkVersion === HARDHAT_NETWORK_ID) {
       return true;
     }
