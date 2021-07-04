@@ -85,7 +85,7 @@ const dappSlice = createSlice({
 
     await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
     await dispatch(createDefaultPools());
-    //await dispatch(getPoolsList());
+    await dispatch(getPoolsList());
   };
   
 
@@ -117,7 +117,7 @@ const dappSlice = createSlice({
   };
 
   export const createDefaultPools = () => async (dispatch, getState) => {
-     await getState().pool.token.createPool("Ethiopian Farmers B", ['0x14dC79964da2C08b23698B3D3cc7Ca32193d9955', '0x14dC79964da2C08b23698B3D3cc7Ca32193d9955']);
+     await getState().pool.token.createPool("Ethiopian Farmers B", ['0x2546BcD3c84621e976D8185a91A922aE77ECEc30', '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E', '0xdD2FD4581271e230360230F9337D5c0430Bf44C0']);
 
   }
 
