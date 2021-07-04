@@ -21,10 +21,6 @@ describe("Pool contract", function () {
     skLibToken = await skLibFactorty.deploy(LibToken.address, "stkLib Token",  "stkLib")
     await skLibToken.deployed();
 
-<<<<<<< HEAD:test/PoolTest.js
-=======
-
->>>>>>> 27f8d975504164ad20c5d4a60c92ef50d20af1fd:test/Pool.js
     poolFactoryToken = await poolFactoryContract.deploy(skLibToken.address, governence.address);
     await poolFactoryToken.deployed();
   });
@@ -52,20 +48,12 @@ describe("Pool contract", function () {
       const poolContract = await ethers.getContractFactory("Pool");
       const poolContractInstance = await poolContract.attach(poolAddress);
 
-<<<<<<< HEAD:test/PoolTest.js
-      // Sanity check then proceed to adding the user as an admin
-      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(false);
-      
-      await poolContractInstance.addAdmin(nonAdmin.address);
-      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(true);
-=======
       // // Sanity check then proceed to adding the user as an admin
       expect(await poolContractInstance.isOwner(nonAdmin.address)).to.equal(false);
 
 
       //Add alice as admin
      callData = poolContractInstance.interface.encodeFunctionData("addOwner(address)", [alice.address])
->>>>>>> 27f8d975504164ad20c5d4a60c92ef50d20af1fd:test/Pool.js
 
      transactionId = await poolContractInstance.submitTransaction(poolContractInstance.address, 0, callData)
      await poolContractInstance.connect(admin2).confirmTransaction(0)
@@ -95,11 +83,6 @@ describe("Pool contract", function () {
 
         auditReport = await poolContractInstance.getAudits()
         expect(auditReport.HistoricalAudits.length).to.equal(1)
-<<<<<<< HEAD:test/PoolTest.js
-    });
-  });
-=======
     })
   })
->>>>>>> 27f8d975504164ad20c5d4a60c92ef50d20af1fd:test/Pool.js
 });
