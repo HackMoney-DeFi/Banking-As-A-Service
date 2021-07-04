@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./interfaces/IPool.sol";
 import "./library/audit.sol";
+import "./MultiSigWallet.sol";
     
 
 import "hardhat/console.sol";
@@ -11,7 +12,7 @@ import "hardhat/console.sol";
  * Pool contract which acts as a reserve for liquidity and can be used for lending, borrowing,
  * investing and other financial operations.
  */
-contract Pool is IPool {
+contract Pool is MultiSigWallet, IPool {
 
 
     /*
@@ -23,17 +24,6 @@ contract Pool is IPool {
      * Name of the Pool
      */
     string public name;
-
-    /*
-     * Map to keep track of users who have special roles such as managing funds and voting on loan requests
-     */
-    mapping(address => bool) public isAdmin;
-
-
-    /*
-     * Total number of admins in the Pool
-     */
-    uint256 public totalAdmins = uint256(0);
 
     /*
      * List of audit reports
@@ -54,11 +44,6 @@ contract Pool is IPool {
         _;
     }
 
-    modifier requireUserIsAdmin(address _address) {
-        require(isAdmin[_address] == true,
-            "User is not authorized to perform operation because they are not an Admin.");
-        _;
-    }
 
     event AddedAdmin(address _address);
     
@@ -70,17 +55,10 @@ contract Pool is IPool {
         string memory _name,
         address _governer,
         address[] memory _admins
-        ){
+        ) MultiSigWallet(_admins, 2) {
 
         name = _name;
         governer = _governer;
-        
-        // Deep copy
-        for (uint i = 0; i < _admins.length; i++) {
-            if (!isAdmin[_admins[i]]) 
-                isAdmin[_admins[i]] = true;
-                totalAdmins += 1;
-        }
     }
 
     function AddAuditReport(AuditorReports.Audit memory _audit) external onlyGoverner {
@@ -96,25 +74,11 @@ contract Pool is IPool {
         //TODO: left intentionally blank
     }
 
-    function addAdmin(address _address) external override requireUserIsAdmin(msg.sender) {
-        if (!isAdmin[_address])
-            isAdmin[_address] = true;
-            totalAdmins += 1;
-            emit AddedAdmin(_address);
-    }
-
-    function removeAdmin(address _address) external override requireUserIsAdmin(msg.sender) {
-        if (isAdmin[_address])
-            delete isAdmin[_address];
-            totalAdmins -= 1;
-            emit RemovedAdmin(_address);
-    }
-
     function getAudits() external view returns(AuditorReports.Reports memory) {
         return audits;
     }
 
-    function transfer(address to, address from, uint256 _amount) public override {
+    function transfer(address to, uint256 _amount) internal override {
         // TODO: left intentionally blank
     }
 }

@@ -11,9 +11,8 @@ abstract contract IPool {
 
     function withdraw(uint256 amount) external virtual;
 
-    function addAdmin(address _address) external virtual;
+    // Transfer pooled fund to eoa account
+    // Can only be executed by a multsig transaction 
+    function transfer(address to, uint256 amount) internal virtual;
 
-    function removeAdmin(address _address) external virtual;
-
-    function transfer(address to, address from, uint256 amount) public virtual;
 }
