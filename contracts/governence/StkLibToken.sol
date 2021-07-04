@@ -1,5 +1,5 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
-
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -14,7 +14,6 @@ contract StkLibToken is VoteToken, ReentrancyGuard {
     // Address of LibToken contract
     address public LibToken;
 
-
     event Stake(address indexed staker, uint256 amount);
     event Unstake(address indexed staker, uint256 burntAmount);
 
@@ -24,7 +23,6 @@ contract StkLibToken is VoteToken, ReentrancyGuard {
         string memory symbol
     ) ERC20(name, symbol) {
         LibToken = libToken;
-
     }
 
     function _transfer(
@@ -44,7 +42,7 @@ contract StkLibToken is VoteToken, ReentrancyGuard {
 
     function unstake(uint256 amount) external nonReentrant {
         uint256 balance = balanceOf(msg.sender);
-        require(balance >= amount, "Insufficent balanece to unstake");
+        require(balance >= amount, "Amount exceeds balance.");
         _unstake(amount);
     }
 
@@ -61,7 +59,5 @@ contract StkLibToken is VoteToken, ReentrancyGuard {
         IERC20(LibToken).transfer(msg.sender, amount);
         emit Unstake(msg.sender, amount);
     }
-    
-
 }
 

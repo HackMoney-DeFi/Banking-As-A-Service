@@ -9,7 +9,6 @@ describe("Pool contract", function () {
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
     [admin, admin2, admin3, nonAdmin, nonAdmin1, alice, governence] = await ethers.getSigners();
 
-
     auditLibraryFactory = await ethers.getContractFactory("AuditorReports")
     auditLibrary = await auditLibraryFactory.deploy()
     await auditLibrary.deployed();
@@ -22,7 +21,10 @@ describe("Pool contract", function () {
     skLibToken = await skLibFactorty.deploy(LibToken.address, "stkLib Token",  "stkLib")
     await skLibToken.deployed();
 
+<<<<<<< HEAD:test/PoolTest.js
+=======
 
+>>>>>>> 27f8d975504164ad20c5d4a60c92ef50d20af1fd:test/Pool.js
     poolFactoryToken = await poolFactoryContract.deploy(skLibToken.address, governence.address);
     await poolFactoryToken.deployed();
   });
@@ -50,12 +52,20 @@ describe("Pool contract", function () {
       const poolContract = await ethers.getContractFactory("Pool");
       const poolContractInstance = await poolContract.attach(poolAddress);
 
+<<<<<<< HEAD:test/PoolTest.js
+      // Sanity check then proceed to adding the user as an admin
+      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(false);
+      
+      await poolContractInstance.addAdmin(nonAdmin.address);
+      expect(await poolContractInstance.isAdmin(nonAdmin.address)).to.equal(true);
+=======
       // // Sanity check then proceed to adding the user as an admin
       expect(await poolContractInstance.isOwner(nonAdmin.address)).to.equal(false);
 
 
       //Add alice as admin
      callData = poolContractInstance.interface.encodeFunctionData("addOwner(address)", [alice.address])
+>>>>>>> 27f8d975504164ad20c5d4a60c92ef50d20af1fd:test/Pool.js
 
      transactionId = await poolContractInstance.submitTransaction(poolContractInstance.address, 0, callData)
      await poolContractInstance.connect(admin2).confirmTransaction(0)
@@ -80,12 +90,16 @@ describe("Pool contract", function () {
         // user not a governer
         await expect( poolContractInstance.AddAuditReport(audit)).to.be.revertedWith("Only Governence allowed operation")
         
-
         // User is governer
         await expect( poolContractInstance.connect(governence).AddAuditReport(audit)).to.not.be.reverted
 
         auditReport = await poolContractInstance.getAudits()
         expect(auditReport.HistoricalAudits.length).to.equal(1)
+<<<<<<< HEAD:test/PoolTest.js
+    });
+  });
+=======
     })
   })
+>>>>>>> 27f8d975504164ad20c5d4a60c92ef50d20af1fd:test/Pool.js
 });
