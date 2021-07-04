@@ -48,8 +48,8 @@ async function main() {
   await LibToken.approve(skLibToken.address, amount)
   await skLibToken.stake(amount)
 
-  await poolFactoryInstance.createPool("Ethiopian Farmers", [admin.address, admin2.address, admin3.address]);
-  await poolFactoryInstance.createPool("BitCoin Birr Donation", [admin.address, admin2.address, admin3.address]);
+  // await poolFactoryInstance.createPool("Ethiopian Farmers 2", [admin.address, admin2.address, admin3.address]);
+  // await poolFactoryInstance.createPool("BitCoin Birr Donation 3", [admin.address, admin2.address, admin3.address]);
 
 
   pools = await poolFactoryInstance.listPools();
