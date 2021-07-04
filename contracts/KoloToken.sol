@@ -13,11 +13,7 @@ import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol"
 contract KoloToken is ERC20PresetMinterPauser {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-    string private constant NAME = "KoloToken";
-
-    string private constant SYMBOL = "KOLO";
-
-    constructor() ERC20PresetMinterPauser(NAME, SYMBOL) {
+    constructor(string memory name, string memory symbol) ERC20PresetMinterPauser(name, symbol) {
     }
 
     function setAdminRole(address _owner) external {

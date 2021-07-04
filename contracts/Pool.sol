@@ -2,10 +2,10 @@
 
 pragma solidity ^0.8.0;
 
-import "./IPool.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./KoloToken.sol";
+import "./interfaces/IPool.sol";
 import "./library/audit.sol";
 import "hardhat/console.sol";
 

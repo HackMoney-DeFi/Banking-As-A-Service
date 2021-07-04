@@ -14,7 +14,7 @@ describe("Pool contract", function () {
     await auditLibrary.deployed();
 
     libFactory = await ethers.getContractFactory("LibToken");
-    LibToken = await libFactory.deploy("LibToken", "Lib");
+    LibToken = await libFactory.deploy(admin.address);
     await LibToken.deployed();
 
     skLibFactorty = await ethers.getContractFactory("StkLibToken")
