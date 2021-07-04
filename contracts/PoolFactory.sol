@@ -1,10 +1,13 @@
 //SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./Pool.sol";
-import "hardhat/console.sol";
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import "./Pool.sol";
+
+import "hardhat/console.sol";
 /*
  * Main factory which is used to create Pools
  */
@@ -15,8 +18,10 @@ contract PoolFactory {
      */
     Pool[] public pools;
     
-    // Address of the stakedToken contract
+    
+    // Address to the sakedToken contractt 
     address private StkToken;
+
 
     address private governence;
 
@@ -24,6 +29,7 @@ contract PoolFactory {
      * Minimum staked amount need to create a new NMLP
      */
     uint256 private minStakeAmount = 1000000000000000000000;
+
 
     constructor (address _stkToken, address _goverence) {
         StkToken = _stkToken;
@@ -39,10 +45,7 @@ contract PoolFactory {
         uint256 stakedBalance = IERC20(StkToken).balanceOf(msg.sender);
         require(stakedBalance >= minStakeAmount, "Insufficient staked balance to create pool");
 
-        string memory tokenName = string(abi.encodePacked("KoloToken-", name));
-        string memory tokenSymbol = string (abi.encodePacked("KOLO-",name));
-        KoloToken kToken = new KoloToken(tokenName, tokenSymbol);
-        Pool pool = new Pool(name, governence, admins, kToken);
+        Pool pool = new Pool(name, governence, admins);
         pools.push(pool);
         return pool;
     }

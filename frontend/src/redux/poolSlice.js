@@ -128,7 +128,10 @@ const dappSlice = createSlice({
       let pool = await poolGen.attach(poolAddresses[i]);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 83f8a76300bb147ee4e40f5ef8b65a7de063676e
       const poolName = await pool.name();
       const totalAdmins = await pool.totalAdmins();
       const isAdmin = await pool.isAdmin(selectedAddress);
@@ -137,7 +140,10 @@ const dappSlice = createSlice({
       pool.isUserAdmin = isAdmin;
 
       poolMap[poolAddresses[i]] = pool;     
+<<<<<<< HEAD
 >>>>>>> ad59e39... pool slice updates
+=======
+>>>>>>> 83f8a76300bb147ee4e40f5ef8b65a7de063676e
     }
       dispatch(setPoolMap(poolMap));
   }

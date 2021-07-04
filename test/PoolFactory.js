@@ -12,9 +12,12 @@ describe("PoolFactory contract", function () {
     LibToken = await libFactory.deploy(alice.address);
     await LibToken.deployed();
 
+
     skLibFactorty = await ethers.getContractFactory("StkLibToken")
     skLibToken = await skLibFactorty.deploy(LibToken.address, "stkLib Token",  "stkLib")
     await skLibToken.deployed();
+
+
 
     poolFactoryContract = await ethers.getContractFactory("PoolFactory");
     poolFactoryInstance = await poolFactoryContract.deploy(skLibToken.address, governence.address);
@@ -41,18 +44,20 @@ describe("PoolFactory contract", function () {
 
   it("Sufficient balance to create pool", async function () {
       await StkToken(ethers.BigNumber.from("1000000000000000000000000000")) //sufficient balance
-      await expect( poolFactoryInstance.createPool("Whoopty", [bob.address, alice.address, governence.address])).to.not.be.reverted
+      await expect( poolFactoryInstance.createPool("Whoopty", [bob.address, alice.address])).to.not.be.reverted
 
       const pools = await poolFactoryInstance.listPools();
       expect(pools.length).to.equal(1);
       expect(await poolFactoryInstance.getNumPools()).to.equal(1);
   });
 
+
+
   it("Factory should create a pool with the correct name and admins", async function () {
     // Create a Pool
     await StkToken(ethers.BigNumber.from("1000000000000000000000000000")) //sufficient balance
     const poolName = "TestPool2";
-    const admins  = [bob.address, alice.address, governence.address]
+    const admins  = [bob.address, alice.address]
     await expect( poolFactoryInstance.createPool(poolName, admins)).to.not.be.reverted
 
 
@@ -63,7 +68,9 @@ describe("PoolFactory contract", function () {
 
     // Assert the expected values
     expect(await poolContractInstance.name()).to.equal(poolName);
-    expect(await poolContractInstance.isOwner(admins[0])).to.equal(true);
-    expect(await poolContractInstance.isOwner(admins[1])).to.equal(true);
+    expect(await poolContractInstance.isAdmin(admins[0])).to.equal(true);
+    expect(await poolContractInstance.isAdmin(admins[1])).to.equal(true);
   });
+
+
 });

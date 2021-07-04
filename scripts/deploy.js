@@ -40,7 +40,7 @@ async function main() {
   
 
   //prepopulate pools
-  [admin, admin2, admin3, nonAdmin, nonAdmin1] = await ethers.getSigners();
+  [admin, nonAdmin, nonAdmin1] = await ethers.getSigners();
 
 
   amount = await ethers.BigNumber.from("1000000000000000000000000000");
@@ -48,11 +48,12 @@ async function main() {
   await LibToken.approve(skLibToken.address, amount)
   await skLibToken.stake(amount)
 
-  await poolFactoryInstance.createPool("Ethiopian Farmers", [admin.address, admin2.address, admin3.address]);
-  await poolFactoryInstance.createPool("BitCoin Birr Donation", [admin.address, admin2.address, admin3.address]);
+  await poolFactoryInstance.createPool("Ethiopian Farmers", [admin.address, nonAdmin1.address]);
+  await poolFactoryInstance.createPool("BitCoin Birr Donation", [admin.address, nonAdmin.address]);
 
 
   pools = await poolFactoryInstance.listPools();
+  console.log("hello", pools)
 
 
   saveFrontendFiles(poolFactoryInstance, LibToken, skLibToken);
