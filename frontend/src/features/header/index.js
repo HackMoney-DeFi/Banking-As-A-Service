@@ -10,6 +10,10 @@ function Header() {
     dispatch(setSidePanel('createPool'));  
   }
 
+  const handleStake = () => {
+    dispatch(setSidePanel('stake'));  
+  }
+
   const handleLogin = () => {
     dispatch(connectWallet());  
   }
@@ -22,7 +26,10 @@ function Header() {
           <div>
             {
               userAddress ? (
-                <button className="btn accent-btn" onClick={() => handleCreatePool()}>Create Pool</button>
+                <>
+                  <button className="btn accent-btn" onClick={() => handleCreatePool()}>Create Pool</button>
+                  <button className="btn ml-1" onClick={() => handleStake()}>Stake</button>
+                </>
               ) :
               (
                 <button className="btn accent-btn" onClick={() => handleLogin()}>Connect</button>
