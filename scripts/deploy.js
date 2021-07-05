@@ -85,12 +85,12 @@ function saveFrontendFiles(poolFactory, libToken, skLibToken) {
     JSON.stringify(PoolFactoryArtifact, null, 2)
   );
 
-  // const UsdcArtifact = artifacts.readArtifactSync("Token")
+  const UsdcArtifact = artifacts.readArtifactSync("Token")
 
-  // fs.writeFileSync(
-  //   contractsDir + "/USDC.json",
-  //   JSON.stringify(UsdcArtifact, null, 2)
-  // );
+  fs.writeFileSync(
+    contractsDir + "/USDC.json",
+    JSON.stringify(UsdcArtifact, null, 2)
+  );
 
   const PoolArtifact = artifacts.readArtifactSync("Pool");
 
