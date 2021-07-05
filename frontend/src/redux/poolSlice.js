@@ -234,7 +234,7 @@ const dappSlice = createSlice({
 
 
   // Send out a request to loan money out to external users
-  const lendOutMoneyFromPool = () => async (dispatch, getState) => {
+  const lendOutMoneyFromPool = (name) => async (dispatch, getState) => {
     const selectedAddress = await getState().pool.selectedAddress;
 
     console.log('loooooo', await getState());
@@ -248,9 +248,8 @@ const dappSlice = createSlice({
     const samplePool = poolMap[key];
 
 
-    const callData = samplePool.interface.encodeFunctionData("lend(address,uint256)", [selectedAddress, 2]);
-    console.log(callData);
-    const transactionId = await samplePool.submitTransaction(samplePool.address, 0, callData);
+    const callData = samplePool.interface.encodeFunctionData("lend(address,uint256)", [selectedAddress, 2]); // Remove the hardcode
+    const transactionId = await samplePool.submitTransaction(samplePool.address, name,  0, callData);
     console.log("Transaction ID  ", transactionId);
   }
 
