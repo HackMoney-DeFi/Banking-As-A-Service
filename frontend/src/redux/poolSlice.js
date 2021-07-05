@@ -218,13 +218,13 @@ const dappSlice = createSlice({
 
 
   // Send out a request to loan money out to external users
-  export const lendOutMoneyFromPool = (poolAddress, receiverAddress, amount) => async (dispatch, getState) => {
+  export const lendOutMoneyFromPool = (requestName, poolAddress, receiverAddress, amount) => async (dispatch, getState) => {
     let poolMap = await getState().pool.poolMap;
     const pool = poolMap[poolAddress];
 
     const callData = pool.interface.encodeFunctionData("lend(address,uint256)", [receiverAddress, amount]);
-    const transactionId = await pool.submitTransaction(pool.address, 0, callData);
-    console.log("Transaction ID  ", transactionId);
+    const transactionId = await samplePool.submitTransaction(samplePool.address, requestName, 0, callData);
+        console.log("Transaction ID  ", transactionId);
   }
 
 
