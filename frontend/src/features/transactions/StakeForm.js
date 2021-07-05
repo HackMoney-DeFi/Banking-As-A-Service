@@ -31,15 +31,10 @@ const StakeForm = () => {
         
           <form>
             <div>
-              <div>
-              
-                <input
-                  onChange={e => setStakeAmt(e.target.value)}
-                  placeholder="Enter amount"
-                  type="number"
-                  id="lname"
-                  name="lname"
-                />
+                <div className="input-group mt-2">
+                <span className="input-group-text">$</span>
+                <input type="number" className="form-control"  onChange={e => setStakeAmt(e.target.value)} aria-label="Enter Amount" />
+                <span className="input-group-text">USDC</span>
               </div>
               {stakeAmt && 
                  
@@ -61,18 +56,14 @@ const StakeForm = () => {
         <div className="mt-2 transaction-form">
           <form>
             <div>
-              <div>
-                <input
-                  onChange={e => setUnstakeAmt(e.target.value)}
-                  placeholder="Enter amount"
-                  type="number"
-                  id="lname"
-                  name="lname"
-                />
+                  <div className="input-group mt-2">
+                <span className="input-group-text">$</span>
+                <input type="number" className="form-control"  onChange={e => setUnstakeAmt(e.target.value)} aria-label="Enter Amount" />
+                <span className="input-group-text">USDC</span>
               </div>
               {unstakeAmt && (
                <div class="w-100 mt-1">
-                <button type="button" onClick={handleStake} class="btn w-100">Submit</button>
+                <button type="button" onClick={handleStake} class="accent-btn btn w-100">Submit</button>
                 </div>
               )}
             </div>

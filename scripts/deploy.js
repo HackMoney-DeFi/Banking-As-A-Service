@@ -52,6 +52,9 @@ async function main() {
 
   await poolFactoryInstance.createPool("Ethiopian Farmers 2", ["0xD7C7d8e849eBa2861406e06157081345C3287f23", admin.address, admin2.address, admin3.address]);
   await poolFactoryInstance.createPool("BitCoin Birr Donation 3", ["0xD7C7d8e849eBa2861406e06157081345C3287f23", admin.address, admin2.address, admin3.address]);
+  await poolFactoryInstance.createPool("Smith Family Trust", ["0xD7C7d8e849eBa2861406e06157081345C3287f23", "0x64e6e757a83a35b0842d8638f4a09d7558b0f541", admin.address, admin2.address, admin3.address]);
+  await poolFactoryInstance.createPool("Weekly Lottery", ["0xD7C7d8e849eBa2861406e06157081345C3287f23", "0x64e6e757a83a35b0842d8638f4a09d7558b0f541", admin.address, admin2.address, admin3.address]);
+  await poolFactoryInstance.createPool("Community Garden", ["0xD7C7d8e849eBa2861406e06157081345C3287f23", "0x64e6e757a83a35b0842d8638f4a09d7558b0f541", admin.address, admin2.address, admin3.address]);
 
 
   pools = await poolFactoryInstance.listPools();

@@ -222,21 +222,21 @@ const dappSlice = createSlice({
     let poolMap = await getState().pool.poolMap;
     const pool = poolMap[poolAddress];
 
-    const callData = pool.interface.encodeFunctionData("lend(address,uint256)", [receiverAddress, amount]);
-    const transactionId = await samplePool.submitTransaction(samplePool.address, requestName, 0, callData);
+    const callData = await pool.interface.encodeFunctionData("lend(address,uint256)", [receiverAddress, amount]);
+    const transactionId = await pool.submitTransaction(poolAddress, requestName, 0, callData);
         console.log("Transaction ID  ", transactionId);
   }
 
 
 
-  // // Vote on a transaction to lend money
-  // const confimLendRequest = (transactionId) => async (dispatch, getState) => {
-  //   const selectedAddress = getState().pool.selectedAddress;
+  // Vote on a transaction to lend money
+  export const confimLendRequest = (transactionId) => async (dispatch, getState) => {
+    const selectedAddress = getState().pool.selectedAddress;
 
-  //   pool = PoolMap[selectedAddress];
-  //   await pool.confirmTransaction(transactionId);
+    pool = PoolMap[selectedAddress];
+    await pool.confirmTransaction(transactionId);
 
-  // }
+  }
 
 
   const _checkNetwork = () => async (dispatch) => {

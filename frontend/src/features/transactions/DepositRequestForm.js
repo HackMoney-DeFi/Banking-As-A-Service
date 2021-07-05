@@ -20,7 +20,11 @@ const DepositForm = ({ address }) => {
         <div>
           <div>
             <label class="sr-only" for="lname">Deposit</label>
-            <input onChange={(e) => setDepositAmount(e.target.value)} placeholder="Enter Amount (USDC)" type="number" id="lname" name="lname" />
+            <div className="input-group mt-2">
+                <span className="input-group-text">$</span>
+                <input type="number" className="form-control" onChange={(e) => setDepositAmount(e.target.value)}  aria-label="Enter Amount" />
+                <span className="input-group-text">USDC</span>
+            </div>
           </div>
           {
             depositAmount && (
