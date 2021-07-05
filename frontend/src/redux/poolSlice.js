@@ -82,30 +82,31 @@ const dappSlice = createSlice({
       },
       resetState(state) {
         state = initialState;
+      },
+      setUsdcBalance(state, action) {
+        state.usdcBalance = action.payload
       }
     },
   })
   
   export const { actions: { 
-    walletLoading, setToken, setStakedAmt, setLibToken, setStakingStatus, setskLibToken, setUSDCToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
+    walletLoading, setToken, setUsdcBalance, setStakedAmt, setLibToken, setStakingStatus, setskLibToken, setUSDCToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
-  await dispatch(_initializeEthers());
+  dispatch(_initializeEthers());
  // await dispatch( getLendRequests
 
   // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
-//  await dispatch(createDefaultPools());
+  dispatch(createDefaultPools());
 
-  await dispatch(await getPoolsList());
-  
-  await dispatch(lendOutMoneyFromPool());
-  await dispatch(getStakedAmount());
+  dispatch(getPoolsList());
+  dispatch(getStakedAmount());
 };
 
   const getStakedAmount = () => async (dispatch, getState) => {
-  const stakedAmt = await getState().pool.libToken.totalSupply();
-  dispatch(setStakedAmt(stakedAmt));
+    const stakedAmt = await getState().pool.libToken.totalSupply();
+    dispatch(setStakedAmt(stakedAmt));
   };
 
 
@@ -147,7 +148,6 @@ const dappSlice = createSlice({
   export const createDefaultPools = () => async (dispatch, getState) => {
     await getState().pool.token.createPool("Family Pool", ['0x64e6e757a83a35b0842d8638f4a09d7558b0f541', '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E', '0xdD2FD4581271e230360230F9337D5c0430Bf44C0']);
     await getState().pool.token.createPool("Ethiopian Farmers B", ['0x2546BcD3c84621e976D8185a91A922aE77ECEc30', '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E', '0xdD2FD4581271e230360230F9337D5c0430Bf44C0']);
-
   }
 
   export const stakeLibTokens = (amount) => async (dispatch, getState) => {
@@ -182,25 +182,23 @@ const dappSlice = createSlice({
     //list pool addresses first
 
     const poolAddresses = await getState().pool.token.listPools();
-    for (var i = 0; i < poolAddresses.length; i++) {
-      let poolGen = await new ethers.ContractFactory(
-        PoolArtifact.abi,
-        PoolArtifact.bytecode, 
-        getState().pool.provider.getSigner(0)
-      );
+    const signer = await getState().pool.provider.getSigner(0);
+    let poolGen = await new ethers.ContractFactory(
+      PoolArtifact.abi,
+      PoolArtifact.bytecode, 
+      signer
+    );
 
+    for (var i = 0; i < poolAddresses.length; i++) {
       let pool = await poolGen.attach(poolAddresses[i]);
       const poolName = await pool.name();
       const isAdmin = await pool.isOwner(selectedAddress);
       const owners = await pool.getOwners();
       const totalLiquidity = await pool.getTotalReserveBalance()
       const transactionCount = await pool.transactionCount();
-      console.log('transaction count: ', transactionCount.toString());
-  
+      
       // // get all pending transaction counts
       const transactionIds = await pool.getTransactionIds(0, transactionCount, true, false);
-      console.log('transaction idees: ', transactionIds);
-
 
       pool.poolName = poolName;
       pool.isUserAdmin = isAdmin;
@@ -210,20 +208,17 @@ const dappSlice = createSlice({
       pool.transactionIds = transactionIds;
       
       poolMap[poolAddresses[i]] = pool;   
-      console.log(poolMap)  
 
       // DONOT Remove. Place-holder for demonstration
-      await console.log(`${i} ${poolName} ${isAdmin} ${totalLiquidity} ${transactionIds} ${transactionIds}`);
+      // console.log(`${i} ${poolName} ${isAdmin} ${totalLiquidity} ${transactionIds} ${transactionIds}`);
     }
-
+    console.log({ poolMap });  
     dispatch(setPoolMap(poolMap));
   }
 
 
   // Send out a request to loan money out to external users
   export const lendOutMoneyFromPool = (poolAddress, receiverAddress, amount) => async (dispatch, getState) => {
-    const selectedAddress = await getState().pool.selectedAddress;
-
     let poolMap = await getState().pool.poolMap;
     const pool = poolMap[poolAddress];
 
@@ -257,7 +252,20 @@ const dappSlice = createSlice({
     }
   };
 
-  
+  export const getUsdcBalance = () => async (dispatch, getState) => {
+    const selectedAddress = await getState().pool.selectedAddress;
+    const usdc = await getState().pool.usdc.balanceOf(selectedAddress);
+    dispatch(setUsdcBalance(usdc));
+  }
+
+  export const depositToPool = (poolAddress, amount) => async (dispatch, getState) => {
+    const pool = await getState().pool.poolMap[poolAddress];
+    await pool.setUsdcAddress(contractAddress.usdcAdress);
+    dispatch(getUsdcBalance());
+    console.log({ poolAddress, pool });
+    await getState().pool.poolMap[poolAddress].deposit(34);
+  }
+
  export const connectWallet = () => async (dispatch, getState) => {
     dispatch(walletLoading());
 

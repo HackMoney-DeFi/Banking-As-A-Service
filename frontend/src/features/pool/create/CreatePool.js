@@ -27,6 +27,8 @@ const AdminsSelect = ({ userAddress, setAdmins }) => {
 const CreatePool = () => {
   const dispatch = useDispatch();
   const userAddress = useSelector(state => state.pool.selectedAddress);
+  const stakedAmt = useSelector(state => state.pool.stakedAmt);
+
   const [poolName, setPoolName] = useState();
   const [admins, setAdmins] = useState();
 
@@ -42,6 +44,10 @@ const CreatePool = () => {
   return (
     <div className="create-pool">
       <h3>Create New Pool</h3>
+      <div className="pool-info mt-1">
+        <strong>Staked Token: </strong>
+          <span className="staked-amt">${stakedAmt.toString()}</span>
+        </div>
       <form className="create-pool-form">
         <label className="mr-1" for="pname">Pool Name</label>
         <br/>

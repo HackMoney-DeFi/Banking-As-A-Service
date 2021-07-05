@@ -7,7 +7,6 @@ function Pool({ address, name, amount, admins, isAdmin }) {
   const dispatch = useDispatch();
 
   const viewPoolDetails = () => {
-    console.log({ address });
     dispatch(setProps({ name, amount, admins, isAdmin, address }));
     dispatch(setSidePanel('details'));
   }

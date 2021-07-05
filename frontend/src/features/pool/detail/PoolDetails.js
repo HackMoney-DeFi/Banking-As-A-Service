@@ -27,12 +27,13 @@ const PoolDetails = ({ address, name, amount, admins, isAdmin }) => {
     <div className="pool-details d-flex flex-column">
       <h2>{name}</h2>
       <br />
-        <div>
+        <div className="pool-info">
       <strong>Liquidity</strong>
       <span>
       {' '}
         ${amount}K</span>
-        <strong className="ml-3">Admins</strong>
+        <br />
+        <strong className="">Admins</strong>
       {' '}
       {admins.map(a => (
         <>
@@ -45,7 +46,7 @@ const PoolDetails = ({ address, name, amount, admins, isAdmin }) => {
       <div>
       </div>
       </div>
-      <DepositForm />
+      <DepositForm address={address} />
       {
         isAdmin && (
           <>
@@ -54,7 +55,7 @@ const PoolDetails = ({ address, name, amount, admins, isAdmin }) => {
           </>
         )
       }
-      <button className="btn mt-2" onClick={handleClose}>
+      <button className="btn mt-5 btn-danger" onClick={handleClose}>
         Close
       </button>
     </div>

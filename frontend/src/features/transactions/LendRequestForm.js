@@ -11,7 +11,8 @@ const ReceiverSelect = ({ setReceiverAddress }) => {
     };
   
     return (
-      <CreatableSelect
+      <CreatableSelect 
+      className="mt-2"
         onChange={handleChange}
         placeholder="Enter receiver address"
       />
@@ -30,19 +31,18 @@ const LendRequestForm = ({ address }) => {
   }
 
   return (
-    <div className="transaction">
+    <div className="transaction mb-2">
       <h5>Request Loan</h5>
       <div>
       <form className="create-pool">
         <div>
             <label class="sr-only" for="lname">Loan Amount</label>
-            <input onChange={(e) => setLoanAmount(e.target.value)} placeholder="Enter Loan Amount" type="number" id="lname" name="lname" />
+            <input onChange={(e) => setLoanAmount(e.target.value)} placeholder="Enter Loan Amount (USDC)" type="number" id="lname" name="lname" />
           <br />
-            <label className="mt-2 mr-1" for="receiver">Receiver Address</label>
             <ReceiverSelect id="receiver" setReceiverAddress={setReceiverAddress} />
           {
             loanAmount && (
-              <button onClick={handleSubmit} type="button" class="btn btn-sm mt-2">Submit</button>
+              <button onClick={handleSubmit} type="button" class="btn accent-btn">Submit</button>
             )
           }
         </div>

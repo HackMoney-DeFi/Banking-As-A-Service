@@ -1,7 +1,7 @@
 .App {
     /* background-image: linear-gradient(45deg, #93a5cf 0%, #e4efe9 100%); */
     height: 100vh;
-    background-color: #F2FDFF;
+    background-color: #4D5061;
   }
 
 .App-logo {
@@ -40,11 +40,23 @@
 }
 
 .accent-btn {
-  background-color: #F0C808;
+  background-color: #e7e247;
 }
 
+.btn {
+  border-radius: 0;
+}
+
+.nav-pills {
+  color: white;
+}
 .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
-  color: black;
   text-decoration: underline !important;
-  background-color: white;
+  color: #e7e247;
+  border: 0px;
+  background-color: transparent;
+}
+
+.panel {
+  box-shadow: -4px 1px 10px 5px rgb(0 0 0);
 }
