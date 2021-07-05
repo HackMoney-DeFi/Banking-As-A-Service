@@ -142,6 +142,15 @@ contract Pool is MultiSigWallet, IPool {
         return USDC.transferFrom(from, to, amount);
     }
 
+    function lend(
+        address to,
+        uint256 amount
+    ) internal override returns(bool) {
+        require(to != address(0), "Can't send to zero address.");
+        IERC20 USDC = IERC20(usdcAddress);
+        return USDC.transfer(to, amount);
+    }
+
     function getTotalReserveBalance() external view returns (uint256) {
         return totalReserveBalance;
     }
