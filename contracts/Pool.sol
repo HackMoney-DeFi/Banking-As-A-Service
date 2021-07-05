@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./KoloToken.sol";
 import "./interfaces/IPool.sol";
 import "./library/audit.sol";
@@ -14,7 +13,7 @@ import "hardhat/console.sol";
  * Pool contract which acts as a reserve for liquidity and can be used for lending, borrowing,
  * investing and other financial operations.
  */
-contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
+contract Pool is MultiSigWallet, IPool {
 
     /*
      * Total amount of liquidity that currently exists in the Pool
@@ -36,7 +35,7 @@ contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
     /*
      * Address of the USDC contract
      */
-    address private constant USDC_ADDRESS = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    address private usdcAddress = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
 
     /*
      * Reference to the KoloToken contract
@@ -48,10 +47,10 @@ contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
         _;
     }
 
-    modifier requireDepositOrWithdrawMoreThanZero(uint256 _amount) {
-        require(_amount > 0, "Must deposit or withdraw more than zero.");
-        _;
-    }
+    // modifier requireDepositOrWithdrawMoreThanZero(uint256 _amount) {
+    //     require(_amount > 0, "Must deposit or withdraw more than zero.");
+    //     _;
+    // }
 
     event AddedAdmin(address _address);
 
@@ -81,8 +80,7 @@ contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
      * of the overlying asset (KOLOs) is minted.
      * @param amount amount of underlying asset to be deposited to the pool
      */
-    function deposit(uint256 amount) external nonReentrant
-        requireDepositOrWithdrawMoreThanZero(amount)
+    function deposit(uint256 amount) external
         override {
 
         // Approve & transfer transaction.
@@ -96,6 +94,7 @@ contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
         kToken.mintKOLO(msg.sender, amount);
     }
     
+    
     function AddAuditReport(AuditorReports.Audit memory _audit) external onlyGoverner {
         audits.HistoricalAudits.push(_audit);
         emit AddedAuditReport(_audit);
@@ -105,8 +104,7 @@ contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
      * @dev Withdraws USDC by converting it from KOLO
      * @param amount the amount of KOLO to be withdrawn
      */
-    function withdraw(uint256 amount) external nonReentrant
-        requireDepositOrWithdrawMoreThanZero(amount)
+    function withdraw(uint256 amount) external 
         override {
 
         // Validate transaction
@@ -138,8 +136,17 @@ contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
         uint256 amount
     ) internal override returns (bool) {
         require(to != address(0), "Can't send to zero address.");
-        IERC20 USDC = IERC20(USDC_ADDRESS);
+        IERC20 USDC = IERC20(usdcAddress);
         return USDC.transferFrom(from, to, amount);
+    }
+
+    function lend(
+        address to,
+        uint256 amount
+    ) public override returns(bool) {
+        require(to != address(0), "Can't send to zero address.");
+        IERC20 USDC = IERC20(usdcAddress);
+        return USDC.transfer(to, amount);
     }
 
     function getTotalReserveBalance() external view returns (uint256) {
@@ -152,6 +159,12 @@ contract Pool is MultiSigWallet, IPool, ReentrancyGuard {
      */
     function convertKOLOToUSDC(uint256 kTokenAmount) private pure returns (uint256) {
         return kTokenAmount;
+
+    }
+    
+
+    function setUsdcAddress(address _usdcAddress) public {
+        usdcAddress = _usdcAddress;
     }
     
 

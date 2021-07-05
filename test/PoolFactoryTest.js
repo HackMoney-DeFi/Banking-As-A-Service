@@ -29,7 +29,7 @@ describe("PoolFactory contract", function () {
       expect(await LibToken.allowance(alice.address, skLibToken.address)).to.equal(amount)
 
       // Stake LibToken
-      await skLibToken.staeke(amount)
+      await skLibToken.stake(amount)
       expect(await skLibToken.balanceOf(alice.address)).to.equal(amount)
       expect(await LibToken.balanceOf(alice.address)).to.equal(0)
   }
