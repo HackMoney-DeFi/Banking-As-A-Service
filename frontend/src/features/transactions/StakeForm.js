@@ -1,16 +1,23 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { closeSidePanel } from "../../redux/viewSlice";
 import "./transactions.css";
+import { stakeLibTokens } from '../../redux/poolSlice';
+import LoadingBtn from '../loading/LoadingBtn';
 
 const StakeForm = () => {
   const dispatch = useDispatch();
+  const stakeStatus = useSelector(state => state.pool.stakeStatus);
   const [stakeAmt, setStakeAmt] = useState();
   const [unstakeAmt, setUnstakeAmt] = useState();
 
   const handleClose = () => {
-      dispatch(closeSidePanel());
+    dispatch(closeSidePanel());
   }
+
+  const handleStake = () => {
+    dispatch(stakeLibTokens(stakeAmt));
+}
   return (
     <div>
       <div className="transaction">
@@ -30,11 +37,19 @@ const StakeForm = () => {
                   name="lname"
                 />
               </div>
-              {stakeAmt && (
-                <div class="col-auto">
-                  <button class="btn btn-sm">Submit</button>
-                </div>
-              )}
+              {stakeAmt && 
+                 
+                    <div class="col-auto w-100 mt-1">
+                        {
+                             stakeStatus !== 'loading' ? 
+                             ( 
+                    <button type="button" onClick={handleStake} class="btn w-100">Submit</button>
+                             ) : (
+                                 <LoadingBtn />
+                             )
+                        }
+                    </div>
+              }
             </div>
           </form>
         </div>
@@ -55,8 +70,8 @@ const StakeForm = () => {
                 />
               </div>
               {unstakeAmt && (
-                <div class="col-auto">
-                  <button class="btn btn-sm">Submit</button>
+               <div class="col-auto w-100 mt-1">
+                <button type="button" onClick={handleStake} class="btn w-100">Submit</button>
                 </div>
               )}
             </div>

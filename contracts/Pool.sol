@@ -158,6 +158,7 @@ contract Pool is MultiSigWallet, IPool {
     function setUsdcAddress(address _usdcAddress) public {
         usdcAddress = _usdcAddress;
     }
+    
 
     /*
      * @dev Validate that amount to withdraw is no more than 20% of Pool liquidity.
