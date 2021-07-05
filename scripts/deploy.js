@@ -1,4 +1,6 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
+
+
 // yours, or create new ones.
 async function main() {
   // This is just a convenience check
@@ -12,10 +14,10 @@ async function main() {
 
   // ethers is avaialble in the global scope
   const [deployer, governance] = await ethers.getSigners();
-  console.log(
-    "Deploying the contracts with the account:",
-    await deployer.getAddress()
-  );
+
+  mockUSDCFactory =  await ethers.getContractFactory("Token");
+  mockUSDC = await mockUSDCFactory.deploy();
+  await mockUSDC.deployed();
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
   auditLibraryFactory = await ethers.getContractFactory("AuditorReports")
@@ -71,6 +73,7 @@ function saveFrontendFiles(poolFactory, libToken, skLibToken) {
     JSON.stringify({ PoolFactory: poolFactory.address,
                      libToken: libToken.address,
                      skLibToken: skLibToken.address,
+                     usdcAdress: mockUSDC.address,
 
                    }, undefined, 2)
   );
@@ -80,6 +83,13 @@ function saveFrontendFiles(poolFactory, libToken, skLibToken) {
   fs.writeFileSync(
     contractsDir + "/PoolFactory.json",
     JSON.stringify(PoolFactoryArtifact, null, 2)
+  );
+
+  const UsdcArtifact = artifacts.readArtifactSync("Token")
+
+  fs.writeFileSync(
+    contractsDir + "/USDC.json",
+    JSON.stringify(UsdcArtifact, null, 2)
   );
 
   const PoolArtifact = artifacts.readArtifactSync("Pool");
