@@ -94,14 +94,17 @@ const dappSlice = createSlice({
   await dispatch(_initializeEthers());
  // await dispatch( getLendRequests
 
-  // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
-//  await dispatch(createDefaultPools());
+    // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
+    // await dispatch(createDefaultPools());
+    await dispatch(getPoolsList());
+    await dispatch(getStakedAmount());
+  };
 
-  await dispatch(await getPoolsList());
+  const getStakedAmount = () => async (dispatch, getState) => {
+    const stakedAmt = await getState().pool.libToken.totalSupply();
+    dispatch(setStakedAmt(stakedAmt));
+  };
   
-  await dispatch(lendOutMoneyFromPool());
-  await dispatch(getStakedAmount());
-};
 
   const getStakedAmount = () => async (dispatch, getState) => {
   const stakedAmt = await getState().pool.libToken.totalSupply();
@@ -212,18 +215,10 @@ const dappSlice = createSlice({
 
       
       pool.transactionIds = transactionIds;
-
       // How to list pending requests
 
-      //
-      //
-      //
-
-
-   
-
       poolMap[poolAddresses[i]] = pool;   
-      console.log(poolMap)  
+      console.log(poolMap);
 
       // DONOT Remove. Place-holder for demonstration
       await console.log(`${i} ${poolName} ${isAdmin} ${totalLiquidity} ${transactionIds} ${transactionIds}`);
