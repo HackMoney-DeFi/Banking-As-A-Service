@@ -225,7 +225,7 @@ const dappSlice = createSlice({
         const transId = transactionIds[i];
         console.log("Example transaction ", transId);
         console.log("Transaction info ", await poolMap[poolAddresses[i]].transactions(transId) )
-        console.log("Transaction info name ", (await poolMap[poolAddresses[i]].transactions(transId)).name )
+        console.log("Transaction info name ", (await poolMap[poolAddresses[i]].transactions(transId)).value.toNumber() )
 
 
 
