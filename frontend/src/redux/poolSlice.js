@@ -7,7 +7,7 @@ import PoolFactoryArtifact from '../contracts/PoolFactory.json';
 import PoolArtifact from '../contracts/Pool.json';
 import LibTokenArtifact from '../contracts/LibToken.json';
 import skLibTokenArtifact from '../contracts/StkLibToken.json';
-import usdcArtifact from '../contracts/Token.json';
+import usdcArtifact from '../contracts/USDC.json';
 import contractAddress from '../contracts/contract-address.json';
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -100,6 +100,7 @@ const dappSlice = createSlice({
   // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
   dispatch(createDefaultPools());
 
+
   dispatch(getPoolsList());
   dispatch(getStakedAmount());
 };
@@ -137,6 +138,7 @@ const dappSlice = createSlice({
       usdcArtifact.abi,
       provider.getSigner(0)
     );
+    console.log("USDC address ",usdc);
 
 
     dispatch(setUSDCToken(usdc));
@@ -146,6 +148,12 @@ const dappSlice = createSlice({
   };
 
   export const createDefaultPools = () => async (dispatch, getState) => {
+
+    const selectedAddress = await getState().pool.selectedAddress;
+
+     const usdc = await getState().pool.usdc.balanceOf(selectedAddress);
+      console.log("USDC balance    ", usdc.toNumber());
+      console.log("address/sele", usdc.address, await getState().pool.selectedAddress);
     await getState().pool.token.createPool("Family Pool", ['0x64e6e757a83a35b0842d8638f4a09d7558b0f541', '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E', '0xdD2FD4581271e230360230F9337D5c0430Bf44C0']);
     await getState().pool.token.createPool("Ethiopian Farmers B", ['0x2546BcD3c84621e976D8185a91A922aE77ECEc30', '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E', '0xdD2FD4581271e230360230F9337D5c0430Bf44C0']);
   }
@@ -155,7 +163,7 @@ const dappSlice = createSlice({
     // try {
       await console.log("Attempting to stake ", amount)
       // initialize approval before actual staking
-      await getState().pool.libToken.approve(contractAddress.skLibToken, amount*1000);
+      await getState().pool.libToken.approve(contractAddress.skLibToken, amount);
       const tx = await getState().pool.skLibToken.stake(amount);
       dispatch(setStakingStatus('success'));
       dispatch(getStakedAmount());
@@ -229,14 +237,14 @@ const dappSlice = createSlice({
 
 
 
-  // Vote on a transaction to lend money
-  export const confimLendRequest = (transactionId) => async (dispatch, getState) => {
-    const selectedAddress = getState().pool.selectedAddress;
+  // // Vote on a transaction to lend money
+  // export const confimLendRequest = (transactionId) => async (dispatch, getState) => {
+  //   const selectedAddress = getState().pool.selectedAddress;
 
-    pool = PoolMap[selectedAddress];
-    await pool.confirmTransaction(transactionId);
+  //   pool = PoolMap[selectedAddress];
+  //   await pool.confirmTransaction(transactionId);
 
-  }
+  // }
 
 
   const _checkNetwork = () => async (dispatch) => {
@@ -255,6 +263,7 @@ const dappSlice = createSlice({
   export const getUsdcBalance = () => async (dispatch, getState) => {
     const selectedAddress = await getState().pool.selectedAddress;
     const usdc = await getState().pool.usdc.balanceOf(selectedAddress);
+    console.log("USDC balance    ", usdc.toNumber())
     dispatch(setUsdcBalance(usdc));
   }
 
@@ -263,7 +272,8 @@ const dappSlice = createSlice({
     await pool.setUsdcAddress(contractAddress.usdcAdress);
     dispatch(getUsdcBalance());
     console.log({ poolAddress, pool });
-    await getState().pool.poolMap[poolAddress].deposit(34);
+    await getState().pool.usdc.approve(poolAddress, 10);
+    await getState().pool.poolMap[poolAddress].deposit(10);
   }
 
  export const connectWallet = () => async (dispatch, getState) => {
