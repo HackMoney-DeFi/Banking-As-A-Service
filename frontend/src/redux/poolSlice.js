@@ -83,23 +83,23 @@ const dappSlice = createSlice({
   })
   
   export const { actions: { 
-      walletLoading, setToken, setStakedAmt, setLibToken, setStakingStatus, setskLibToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
+    walletLoading, setToken, setStakedAmt, setLibToken, setStakingStatus, setskLibToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
-    await dispatch(_initializeEthers());
+  await dispatch(_initializeEthers());
 
-    // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
-    // await dispatch(createDefaultPools());
-    await dispatch(getPoolsList());
-    await dispatch(getStakedAmount());
-  };
+  // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
+  // await dispatch(createDefaultPools());
+  await dispatch(getPoolsList());
+  await dispatch(getStakedAmount());
+};
 
   const getStakedAmount = () => async (dispatch, getState) => {
-    const stakedAmt = await getState().pool.libToken.totalSupply();
-    dispatch(setStakedAmt(stakedAmt));
+  const stakedAmt = await getState().pool.libToken.totalSupply();
+  dispatch(setStakedAmt(stakedAmt));
   };
-  
+
 
  const _initializeEthers = () => async (dispatch) => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -129,7 +129,7 @@ const dappSlice = createSlice({
   };
 
   export const createDefaultPools = () => async (dispatch, getState) => {
-     await getState().pool.token.createPool("Ethiopian Farmers B", ['0x2546BcD3c84621e976D8185a91A922aE77ECEc30', '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E', '0xdD2FD4581271e230360230F9337D5c0430Bf44C0']);
+    await getState().pool.token.createPool("Ethiopian Farmers B", ['0x2546BcD3c84621e976D8185a91A922aE77ECEc30', '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E', '0xdD2FD4581271e230360230F9337D5c0430Bf44C0']);
 
   }
 
@@ -145,7 +145,7 @@ const dappSlice = createSlice({
     } catch (e) {
       dispatch(setStakingStatus('error'));
     }
-  }
+ }
 
   export const createPool = (poolName, admins) => async (dispatch, getState) => {
     console.log('creating pool ', poolName, ' with admins ', admins);
@@ -156,7 +156,7 @@ const dappSlice = createSlice({
   const getPoolsList = () => async (dispatch, getState) => {
     const selectedAddress = getState().pool.selectedAddress;
     await console.log("Your address ", selectedAddress);
-   
+
 
 
     //To access pool metadata
@@ -164,7 +164,7 @@ const dappSlice = createSlice({
     // poolMap['xerandomadress'].isAdmin(address)
     const poolMap = {};
     //list pool addresses first
-    
+
     const poolAddresses = await getState().pool.token.listPools();
     for (var i = 0; i < poolAddresses.length; i++) {
       let poolGen = await new ethers.ContractFactory(
@@ -174,7 +174,7 @@ const dappSlice = createSlice({
       );
 
       let pool = await poolGen.attach(poolAddresses[i]);
-
+      
       const poolName = await pool.name();
       const isAdmin = await pool.isOwner(selectedAddress);
       const owners = await pool.getOwners();
@@ -183,13 +183,56 @@ const dappSlice = createSlice({
       pool.isUserAdmin = isAdmin;
       pool.totalLiquidity = totalLiquidity.toNumber();;
       pool.owners = owners;
-      poolMap[poolAddresses[i]] = pool;    
-      
+      poolMap[poolAddresses[i]] = pool;     
+
       // DONOT Remove. Place-holder for demonstration
       await console.log(`${i} ${poolName} ${isAdmin} ${owners} ${totalLiquidity}`);
     }
     dispatch(setPoolMap(poolMap));
   }
+
+
+  // Send out a request to loan money out to external users
+  const lendOutMoneyFromPool = (to, amount) => async (dispatch, getState) => {
+    const selectedAddress = getState().pool.selectedAddress;
+
+    pool = PoolMap[selectedAddress]
+    callData = pool.interface.encodeFunctionData("lend(address,uint254)", [to, amount])
+    transactionId = await poolContractInstance.submitTransaction(pool.address, 0, callData)
+  }
+
+
+  //Get list of pending lending requests that need to be signed
+  const getLendRequests = () => async (dispatch, getState) => {
+    const selectedAddress = getState().pool.selectedAddress;
+
+    pool = PoolMap[selectedAddress]
+
+    
+    transactionCount = await pool.transactionCount;
+
+    let transactionIds
+    // get all pending transaction counts
+    transactionIds = await pool.getTransactionIds(0, transactionCount, true, false);
+
+    transactionMap = {}
+    for (var i = 0; i < len(transactionIds); i++) {
+       transactionId = transactionIds[i]
+       transaction = pool.transactions(transactionId);
+       transactionMap[transactionId] = transaction;
+    }
+    //TODO dispatch this transactionMap to the pool list of pending transactions
+  }
+
+  // Vote on a transaction to lend money
+  const confimLendRequest = (transactionId) => async (dispatch, getState) => {
+    const selectedAddress = getState().pool.selectedAddress;
+
+    pool = PoolMap[selectedAddress];
+    await pool.confirmTransaction(transactionId);
+
+  }
+
 
   const _checkNetwork = () => async (dispatch) => {
     console.log("Hardhat net ID ",HARDHAT_NETWORK_ID);
