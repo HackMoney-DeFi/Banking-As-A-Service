@@ -138,7 +138,7 @@ const dappSlice = createSlice({
     try {
       await console.log("Attempting to stake ", amount)
       // initialize approval before actual staking
-      await getState().pool.libToken.approve(contractAddress.skLibToken, amount*1000);
+      await getState().pool.libToken.approve(contractAddress.skLibToken, amount);
       const tx = await getState().pool.skLibToken.stake(amount);
       dispatch(setStakingStatus('success'));
       dispatch(getStakedAmount());
