@@ -91,16 +91,17 @@ const dappSlice = createSlice({
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
-    await dispatch(_initializeEthers());
-  // await dispatch( getLendRequests
+  await dispatch(_initializeEthers());
+ // await dispatch( getLendRequests
 
-    // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
-   dispatch(createDefaultPools());
+  // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
+//  await dispatch(createDefaultPools());
 
-     dispatch(getPoolsList());
-    
-   dispatch(getStakedAmount());
-  };
+  await dispatch(await getPoolsList());
+  
+  await dispatch(lendOutMoneyFromPool());
+  await dispatch(getStakedAmount());
+};
 
   const getStakedAmount = () => async (dispatch, getState) => {
   const stakedAmt = await getState().pool.libToken.totalSupply();
@@ -137,10 +138,10 @@ const dappSlice = createSlice({
     );
 
 
-     dispatch(setUSDCToken(usdc));
-     dispatch(setLibToken(libToken));
-     dispatch(setToken(token));
-   dispatch(setskLibToken(skLibToken));
+    dispatch(setUSDCToken(usdc));
+    dispatch(setLibToken(libToken));
+    dispatch(setToken(token));
+    dispatch(setskLibToken(skLibToken));
   };
 
   export const createDefaultPools = () => async (dispatch, getState) => {
@@ -190,10 +191,9 @@ const dappSlice = createSlice({
 
       let pool = await poolGen.attach(poolAddresses[i]);
       const poolName = await pool.name();
-        const isAdmin = await pool.isOwner(selectedAddress);
+      const isAdmin = await pool.isOwner(selectedAddress);
       const owners = await pool.getOwners();
       const totalLiquidity = await pool.getTotalReserveBalance()
-
       const transactionCount = await pool.transactionCount();
       console.log('transaction count: ', transactionCount.toString());
   
@@ -207,12 +207,8 @@ const dappSlice = createSlice({
       pool.admins = owners;
       pool.totalLiquidity = totalLiquidity.toNumber();
       pool.transactionCounter = transactionCount.toNumber();
-
-      
       pool.transactionIds = transactionIds;
-
-      // How to list pending requests
-
+      
       poolMap[poolAddresses[i]] = pool;   
       console.log(poolMap)  
 
