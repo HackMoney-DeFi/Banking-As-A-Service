@@ -101,6 +101,7 @@ const dappSlice = createSlice({
   dispatch(createDefaultPools());
 
 
+
   dispatch(getPoolsList());
   dispatch(getStakedAmount());
 };
@@ -217,10 +218,21 @@ const dappSlice = createSlice({
       
       poolMap[poolAddresses[i]] = pool;   
 
-      // DONOT Remove. Place-holder for demonstration
-      // console.log(`${i} ${poolName} ${isAdmin} ${totalLiquidity} ${transactionIds} ${transactionIds}`);
+
+      
+
+      for (var i = 0; i < transactionIds.length; i++) { 
+        const transId = transactionIds[i];
+        console.log("Example transaction ", transId);
+        console.log("Transaction info ", await poolMap[poolAddresses[i]].transactions(transId) )
+        console.log("Transaction info name ", (await poolMap[poolAddresses[i]].transactions(transId)).name )
+
+
+
+      }
+
     }
-    console.log({ poolMap });  
+    console.log('pooooool Map:    ', { poolMap });  
     dispatch(setPoolMap(poolMap));
   }
 
