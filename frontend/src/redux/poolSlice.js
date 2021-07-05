@@ -203,19 +203,25 @@ const dappSlice = createSlice({
 
 
   //Get list of pending lending requests that need to be signed
-  const getPendingLendRequests = () => async (dispatch, getState) => {
+  const getLendRequests = () => async (dispatch, getState) => {
     const selectedAddress = getState().pool.selectedAddress;
 
     pool = PoolMap[selectedAddress]
 
-    numPending = pool.getTransactionCount(true, false);
+    
+    transactionCount = await pool.transactionCount;
 
-    transactionMap = new Map()
-    for (var i = 0; i < numPending; i++) {
-       transaction = pool.transactions(i);
-       transactionMap[i] = transaction;
+    let transactionIds
+    // get all pending transaction counts
+    transactionIds = await pool.getTransactionIds(0, transactionCount, true, false);
+
+    transactionMap = {}
+    for (var i = 0; i < len(transactionIds); i++) {
+       transactionId = transactionIds[i]
+       transaction = pool.transactions(transactionId);
+       transactionMap[transactionId] = transaction;
     }
-    //TODO dispatch this details to the pool list of pending transactions
+    //TODO dispatch this transactionMap to the pool list of pending transactions
   }
 
   // Vote on a transaction to lend money
