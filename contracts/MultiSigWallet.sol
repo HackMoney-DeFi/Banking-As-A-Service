@@ -28,6 +28,7 @@ contract MultiSigWallet {
 
     struct Transaction {
         address destination;
+        string name;
         uint value;
         bytes data;
         bool executed;
@@ -180,11 +181,11 @@ contract MultiSigWallet {
     // @param value Transaction ether value.
     // @param data Transaction data payload.
     // @return Returns transaction ID.
-    function submitTransaction(address destination, uint value, bytes memory data)
+    function submitTransaction(address destination, string memory name, uint value, bytes memory data)
         public
         returns (uint transactionId)
     {
-        transactionId = addTransaction(destination, value, data);
+        transactionId = addTransaction(destination, name, value, data);
         confirmTransaction(transactionId);
         return transactionId;
     }
@@ -261,7 +262,7 @@ contract MultiSigWallet {
     // @param value Transaction ether value.
     // @param data Transaction data payload.
     // @return Returns transaction ID.
-    function addTransaction(address destination, uint value, bytes memory data)
+    function addTransaction(address destination, string memory name, uint value, bytes memory data)
         internal
         notNull(destination)
         returns (uint transactionId)
@@ -269,6 +270,7 @@ contract MultiSigWallet {
         transactionId = transactionCount;
         transactions[transactionId] = Transaction({
             destination: destination,
+            name: name,
             value: value,
             data: data,
             executed: false
