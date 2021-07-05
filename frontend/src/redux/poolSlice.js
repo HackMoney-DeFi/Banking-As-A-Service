@@ -7,6 +7,7 @@ import PoolFactoryArtifact from '../contracts/PoolFactory.json';
 import PoolArtifact from '../contracts/Pool.json';
 import LibTokenArtifact from '../contracts/LibToken.json';
 import skLibTokenArtifact from '../contracts/StkLibToken.json';
+import usdcArtifact from '../contracts/Token.json';
 import contractAddress from '../contracts/contract-address.json';
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -60,6 +61,9 @@ const dappSlice = createSlice({
       setLibToken(state, action ) {
           state.libToken = action.payload;
       },
+      setUSDCToken(state, action ) {
+        state.usdc = action.payload;
+     },
       setskLibToken(state, action) {
         state.skLibToken = action.payload;
       },
@@ -83,15 +87,19 @@ const dappSlice = createSlice({
   })
   
   export const { actions: { 
-    walletLoading, setToken, setStakedAmt, setLibToken, setStakingStatus, setskLibToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
+    walletLoading, setToken, setStakedAmt, setLibToken, setStakingStatus, setskLibToken, setUSDCToken, setProvider, setBalance, setTokenData, setError, resetState, setUserAddress, setPoolMap, setEthers  
     } , reducer } = dappSlice;
 
  const _initialize = () => async (dispatch, getState) => {
   await dispatch(_initializeEthers());
+ // await dispatch( getLendRequests
 
   // await dispatch(stakeLibTokens(ethers.BigNumber.from("1000000000000000000000000000")));
-  // await dispatch(createDefaultPools());
-  await dispatch(getPoolsList());
+//  await dispatch(createDefaultPools());
+
+  await dispatch(await getPoolsList());
+  
+  await dispatch(lendOutMoneyFromPool());
   await dispatch(getStakedAmount());
 };
 
@@ -123,6 +131,15 @@ const dappSlice = createSlice({
       provider.getSigner(0)
     );
 
+    const usdc = new ethers.Contract(
+      contractAddress.usdcAdress,
+      usdcArtifact.abi,
+      provider.getSigner(0)
+    );
+
+
+    await dispatch(await setUSDCToken(usdc));
+    await console.log("acquired USDC token", usdc)
     await dispatch(await setLibToken(libToken));
     await dispatch(await setToken(token));
     await dispatch(await setskLibToken(skLibToken));
@@ -134,17 +151,18 @@ const dappSlice = createSlice({
   }
 
   export const stakeLibTokens = (amount) => async (dispatch, getState) => {
-    dispatch(setStakingStatus('loading'));
-    try {
+    // dispatch(setStakingStatus('loading'));
+    // try {
       await console.log("Attempting to stake ", amount)
       // initialize approval before actual staking
       await getState().pool.libToken.approve(contractAddress.skLibToken, amount*1000);
       const tx = await getState().pool.skLibToken.stake(amount);
       dispatch(setStakingStatus('success'));
       dispatch(getStakedAmount());
-    } catch (e) {
-      dispatch(setStakingStatus('error'));
-    }
+      
+    // } catch (e) {
+    //   dispatch(setStakingStatus('error'));
+    // }
  }
 
   export const createPool = (poolName, admins) => async (dispatch, getState) => {
@@ -174,64 +192,78 @@ const dappSlice = createSlice({
       );
 
       let pool = await poolGen.attach(poolAddresses[i]);
-      
       const poolName = await pool.name();
       const isAdmin = await pool.isOwner(selectedAddress);
-      const owners = await pool.getOwners();
+ //     const owners = await pool.owners();
       const totalLiquidity = await pool.getTotalReserveBalance()
+
+      const transactionCount = await pool.transactionCount();
+      console.log('transaction count: ', transactionCount.toString());
+  
+      // // get all pending transaction counts
+      const transactionIds = await pool.getTransactionIds(0, transactionCount, true, false);
+      console.log('transaction idees: ', transactionIds);
+
+
       pool.poolName = poolName;
       pool.isUserAdmin = isAdmin;
-      pool.totalLiquidity = totalLiquidity.toNumber();;
-      pool.owners = owners;
-      poolMap[poolAddresses[i]] = pool;     
+      pool.totalLiquidity = totalLiquidity.toNumber();
+      pool.transactionCounter = transactionCount.toNumber();
+
+      
+      pool.transactionIds = transactionIds;
+
+      // How to list pending requests
+
+      //
+      //
+      //
+
+
+   
+
+      poolMap[poolAddresses[i]] = pool;   
+      console.log(poolMap)  
 
       // DONOT Remove. Place-holder for demonstration
-      await console.log(`${i} ${poolName} ${isAdmin} ${owners} ${totalLiquidity}`);
+      await console.log(`${i} ${poolName} ${isAdmin} ${totalLiquidity} ${transactionIds} ${transactionIds}`);
     }
+
     dispatch(setPoolMap(poolMap));
   }
 
 
   // Send out a request to loan money out to external users
-  const lendOutMoneyFromPool = (to, amount) => async (dispatch, getState) => {
-    const selectedAddress = getState().pool.selectedAddress;
+  const lendOutMoneyFromPool = () => async (dispatch, getState) => {
+    const selectedAddress = await getState().pool.selectedAddress;
 
-    pool = PoolMap[selectedAddress]
-    callData = pool.interface.encodeFunctionData("lend(address,uint254)", [to, amount])
-    transactionId = await poolContractInstance.submitTransaction(pool.address, 0, callData)
+    console.log('loooooo', await getState());
+
+  // pool =  await getState();
+   let poolMap = getState().pool.poolMap;
+   let key = Object.keys(poolMap)[0] ;
+   console.log(poolMap);
+   console.log(await poolMap[key].getOwners());
+
+    const samplePool = poolMap[key];
+
+
+    const callData = samplePool.interface.encodeFunctionData("lend(address,uint256)", [selectedAddress, 2]);
+    console.log(callData);
+    const transactionId = await samplePool.submitTransaction(samplePool.address, 0, callData);
+    console.log("Transaction ID  ", transactionId);
   }
 
 
-  //Get list of pending lending requests that need to be signed
-  const getLendRequests = () => async (dispatch, getState) => {
-    const selectedAddress = getState().pool.selectedAddress;
 
-    pool = PoolMap[selectedAddress]
+  // // Vote on a transaction to lend money
+  // const confimLendRequest = (transactionId) => async (dispatch, getState) => {
+  //   const selectedAddress = getState().pool.selectedAddress;
 
-    
-    transactionCount = await pool.transactionCount;
+  //   pool = PoolMap[selectedAddress];
+  //   await pool.confirmTransaction(transactionId);
 
-    let transactionIds
-    // get all pending transaction counts
-    transactionIds = await pool.getTransactionIds(0, transactionCount, true, false);
-
-    transactionMap = {}
-    for (var i = 0; i < len(transactionIds); i++) {
-       transactionId = transactionIds[i]
-       transaction = pool.transactions(transactionId);
-       transactionMap[transactionId] = transaction;
-    }
-    //TODO dispatch this transactionMap to the pool list of pending transactions
-  }
-
-  // Vote on a transaction to lend money
-  const confimLendRequest = (transactionId) => async (dispatch, getState) => {
-    const selectedAddress = getState().pool.selectedAddress;
-
-    pool = PoolMap[selectedAddress];
-    await pool.confirmTransaction(transactionId);
-
-  }
+  // }
 
 
   const _checkNetwork = () => async (dispatch) => {

@@ -47,10 +47,10 @@ contract Pool is MultiSigWallet, IPool {
         _;
     }
 
-    modifier requireDepositOrWithdrawMoreThanZero(uint256 _amount) {
-        require(_amount > 0, "Must deposit or withdraw more than zero.");
-        _;
-    }
+    // modifier requireDepositOrWithdrawMoreThanZero(uint256 _amount) {
+    //     require(_amount > 0, "Must deposit or withdraw more than zero.");
+    //     _;
+    // }
 
     event AddedAdmin(address _address);
 
@@ -81,7 +81,6 @@ contract Pool is MultiSigWallet, IPool {
      * @param amount amount of underlying asset to be deposited to the pool
      */
     function deposit(uint256 amount) external
-        requireDepositOrWithdrawMoreThanZero(amount)
         override {
 
         // Approve & transfer transaction.
@@ -106,7 +105,6 @@ contract Pool is MultiSigWallet, IPool {
      * @param amount the amount of KOLO to be withdrawn
      */
     function withdraw(uint256 amount) external 
-        requireDepositOrWithdrawMoreThanZero(amount)
         override {
 
         // Validate transaction
@@ -145,7 +143,7 @@ contract Pool is MultiSigWallet, IPool {
     function lend(
         address to,
         uint256 amount
-    ) internal override returns(bool) {
+    ) public override returns(bool) {
         require(to != address(0), "Can't send to zero address.");
         IERC20 USDC = IERC20(usdcAddress);
         return USDC.transfer(to, amount);
