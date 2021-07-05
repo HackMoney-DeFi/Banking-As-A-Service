@@ -218,6 +218,7 @@ const dappSlice = createSlice({
     //TODO dispatch this details to the pool list of pending transactions
   }
 
+  // Vote on a transaction to lend money
   const confimLendRequest = (transactionId) => async (dispatch, getState) => {
     const selectedAddress = getState().pool.selectedAddress;
 
