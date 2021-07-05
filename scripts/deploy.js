@@ -56,8 +56,27 @@ async function main() {
   await poolFactoryInstance.createPool("Weekly Lottery", ["0xD7C7d8e849eBa2861406e06157081345C3287f23", "0x64e6e757a83a35b0842d8638f4a09d7558b0f541", admin.address, admin2.address, admin3.address]);
   await poolFactoryInstance.createPool("Community Garden", ["0xD7C7d8e849eBa2861406e06157081345C3287f23", "0x64e6e757a83a35b0842d8638f4a09d7558b0f541", admin.address, admin2.address, admin3.address]);
 
+  
+
+
+  //(requestName, poolAddress, receiverAddress, amount)
 
   pools = await poolFactoryInstance.listPools();
+
+
+
+
+
+  const poolAddress = (await poolFactoryInstance.listPools())[0];
+  const poolContract = await ethers.getContractFactory("Pool");
+  const poolContractInstance = await poolContract.attach(poolAddress);
+  //Add alice as admin
+  callData = poolContractInstance.interface.encodeFunctionData("lend(address,uint256)", ["0xD7C7d8e849eBa2861406e06157081345C3287f23", 10]);
+
+  transactionId = await poolContractInstance.submitTransaction(poolContractInstance.address, 'testRequest', 0, callData)
+  
+  await poolContractInstance.connect(admin2).confirmTransaction(0)
+
 
 
   saveFrontendFiles(poolFactoryInstance, LibToken, skLibToken);
