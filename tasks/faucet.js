@@ -41,16 +41,17 @@ task("faucet", "Sends ETH and tokens to an address")
     await skLibToken.deployed();
 
 
-    usdcFactory = await ethers.getContractFactory("Token")
-    usdc = await usdcFactory.deploy()
-    await usdc.deployed();
+    usdc = await ethers.getContractAt("Token", address.usdcAdress);
 
     //send some libTokens
     await token.mint(receiver, ethers.BigNumber.from("9000000000000000000000000000") );
     await token.approve(address.libToken, receiver);
     await token.allowance(receiver, token.address)
     
-    await usdc.transfer(receiver, 100)
+    const tx = await usdc.transfer(receiver, 100);
+    
+    console.log('USDC balance ', (await usdc.balanceOf(receiver)).toNumber(), ' ', receiver);
+  
 
     console.log(ethers.constants.WeiPerEther);
     const tx2 = await sender.sendTransaction({

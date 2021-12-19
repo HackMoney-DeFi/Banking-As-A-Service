@@ -21,29 +21,28 @@ const StakeForm = () => {
   return (
     <div>
       <div className="transaction">
+        <div className="mb-4" style={{ fontSize: '12.5px' }}>
+                   Stake KoloToken to get StakedKoloToken, which you can use to create pools.
+               </div>
+        
         <h5>Stake</h5>
+
         <div className="transaction-form">
+        
           <form>
-            <div class="form-row align-items-center">
-              <div class="col-auto">
-                <label class="sr-only" for="lname">
-                  I want to stake
-                </label>
-                <input
-                  onChange={e => setStakeAmt(e.target.value)}
-                  placeholder="Enter amount"
-                  type="number"
-                  id="lname"
-                  name="lname"
-                />
+            <div>
+                <div className="input-group mt-2">
+                <span className="input-group-text">$</span>
+                <input type="number" className="form-control"  onChange={e => setStakeAmt(e.target.value)} aria-label="Enter Amount" />
+                <span className="input-group-text">USDC</span>
               </div>
               {stakeAmt && 
                  
-                    <div class="col-auto w-100 mt-1">
+                    <div class="w-100 mt-1">
                         {
                              stakeStatus !== 'loading' ? 
                              ( 
-                    <button type="button" onClick={handleStake} class="btn w-100">Submit</button>
+                    <button type="button" onClick={handleStake} class="btn accent-btn w-100">Submit</button>
                              ) : (
                                  <LoadingBtn />
                              )
@@ -56,22 +55,15 @@ const StakeForm = () => {
         <h5 className="mt-4">Unstake</h5>
         <div className="mt-2 transaction-form">
           <form>
-            <div class="form-row align-items-center">
-              <div class="col-auto">
-                <label class="sr-only" for="lname">
-                  I want to unstake
-                </label>
-                <input
-                  onChange={e => setUnstakeAmt(e.target.value)}
-                  placeholder="Enter amount"
-                  type="number"
-                  id="lname"
-                  name="lname"
-                />
+            <div>
+                  <div className="input-group mt-2">
+                <span className="input-group-text">$</span>
+                <input type="number" className="form-control"  onChange={e => setUnstakeAmt(e.target.value)} aria-label="Enter Amount" />
+                <span className="input-group-text">USDC</span>
               </div>
               {unstakeAmt && (
-               <div class="col-auto w-100 mt-1">
-                <button type="button" onClick={handleStake} class="btn w-100">Submit</button>
+               <div class="w-100 mt-1">
+                <button type="button" onClick={handleStake} class="accent-btn btn w-100">Submit</button>
                 </div>
               )}
             </div>
@@ -79,7 +71,7 @@ const StakeForm = () => {
         </div>
       </div>
       <div>
-        <button onClick={handleClose} className="btn w-100 btn-danger">Close</button>
+        <button onClick={handleClose} className="btn mt-4 w-100 btn-danger">Close</button>
       </div>
     </div>
   );

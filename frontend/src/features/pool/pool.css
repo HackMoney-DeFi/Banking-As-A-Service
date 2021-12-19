@@ -1,19 +1,21 @@
 .pool {
-    margin: 10px;
-    border-radius: 10px;
-    background-color: white;
-    border: 1px solid lightgray;
-    display: flex;
-    flex-direction: row;
-    /* filter: drop-shadow(0 0 3px lightgrey); */
-    height: 7em;
+  margin: 10px;
+  background-color: #E9EDDE;
+  border: 1px solid #5C80BC;
+  display: flex;
+  flex-direction: row;
+  height: 7em;
+  box-shadow: 4px 6px 10px rgb(0 0 0);
+  transition: 0.3s;
 }
 
 .pool:hover {
+  box-shadow: 10px 10px 10px rgb(0 0 0);
+
 }
 
 .pool-left {
-  border-right: 1px solid lightblue;
+  border-right: 1px solid #5c80bc;
   padding: 20px;
   width: 80%;
 }
@@ -56,6 +58,15 @@
   flex-direction: column;
 }
 
+.pool-info {
+  background-color: #5C80BC;
+  padding: 10px;
+  box-shadow: 1px 1px 4px 1px rgb(0 0 0 / 40%);
+  overflow-x: hidden;
+    text-overflow: ellipsis;
+  font-size: small;
+}
+
 .create-pool-form {
   margin-top: 1em;
   margin-bottom: 1em;
@@ -63,8 +74,4 @@
 
 .nav-pools {
   justify-content: center;
-}
-
-.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
-  border: 1px solid lightgray;
 }

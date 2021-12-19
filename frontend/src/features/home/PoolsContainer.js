@@ -55,7 +55,7 @@ function PoolsContainer() {
         </ul>
         <div className="pools-container">
           {poolList.map(p => (
-            <Pool name={p.poolName} numAdmins={p.totalPoolAdmins} amount={p.totalLiquidity} admins={[]} />
+            <Pool address={p.address} name={p.poolName} isAdmin={p.isUserAdmin} amount={p.totalLiquidity} admins={p.admins} />
           ))}
         </div>
         </>
